@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">SafeParkingZonesApp</string>
+
+    <!-- Used for accessability reasons (people that cannot see the screen) -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+</resources>
