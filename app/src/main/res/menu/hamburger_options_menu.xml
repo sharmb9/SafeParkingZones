@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+
+    <!-- Top Three Icons -->
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/nav_safe_and_near"
+            android:icon="@drawable/ic_safe_and_near"
+            android:title="Safe and Near" />
+        <item android:id="@+id/nav_near_parking_spots"
+            android:icon="@drawable/ic_near_parking_spots"
+            android:title="Near" />
+        <item android:id="@+id/nav_safe_parking"
+            android:icon="@drawable/ic_safe_parking"
+            android:title="Safe" />
+
+    </group>
+
+    <!-- Communication's icons -->
+    <item android:title="Communication">
+        <menu>
+            <item android:id="@+id/nav_share"
+                android:icon="@drawable/ic_share"
+                android:title="Share"/>
+        </menu>
+    </item>
+
+    <!--  User section icons -->
+    <item android:title="User">
+        <menu>
+            <item android:id="@+id/nav_profile"
+                android:icon="@drawable/ic_profile"
+                android:title="Profile" />
+            <item android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_settings"
+                android:title="Settings" />
+        </menu>
+    </item>
+
+
+</menu>
