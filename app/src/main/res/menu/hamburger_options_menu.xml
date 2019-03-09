@@ -6,13 +6,13 @@
 
     <!-- Top Three Icons -->
     <group android:checkableBehavior="single">
-        <item android:id="@+id/nav_safe_and_near"
+        <item android:id="@+id/nav_near_and_safe"
             android:icon="@drawable/ic_safe_and_near"
-            android:title="Safe and Near" />
-        <item android:id="@+id/nav_near_parking_spots"
+            android:title="Near and Safe" />
+        <item android:id="@+id/nav_near"
             android:icon="@drawable/ic_near_parking_spots"
             android:title="Near" />
-        <item android:id="@+id/nav_safe_parking"
+        <item android:id="@+id/nav_safe"
             android:icon="@drawable/ic_safe_parking"
             android:title="Safe" />
 
