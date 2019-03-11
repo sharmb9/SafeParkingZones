@@ -3,41 +3,46 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-
-    <!-- Top Three Icons -->
+    <!-- Adds menu items near and safe, near, safe
+         checkable behaviour means once clicked they will
+         stay clicked-->
     <group android:checkableBehavior="single">
         <item android:id="@+id/nav_near_and_safe"
-            android:icon="@drawable/ic_safe_and_near"
+            android:icon="@drawable/ic_near_and_safe"
             android:title="Near and Safe" />
-        <item android:id="@+id/nav_near"
-            android:icon="@drawable/ic_near_parking_spots"
-            android:title="Near" />
-        <item android:id="@+id/nav_safe"
-            android:icon="@drawable/ic_safe_parking"
-            android:title="Safe" />
 
+        <item android:id="@+id/nav_near"
+            android:icon="@drawable/ic_near"
+            android:title="Near" />
+
+        <item android:id="@+id/nav_safe"
+            android:icon="@drawable/ic_safe"
+            android:title="Safe" />
     </group>
 
-    <!-- Communication's icons -->
-    <item android:title="Communication">
+    <!-- Adds menu item Share -->
+    <item android:title="Social">
         <menu>
             <item android:id="@+id/nav_share"
                 android:icon="@drawable/ic_share"
-                android:title="Share"/>
+                android:title="Share" />
         </menu>
     </item>
 
-    <!--  User section icons -->
+    <!-- Adds menu items Profile, Settings -->
     <item android:title="User">
         <menu>
             <item android:id="@+id/nav_profile"
                 android:icon="@drawable/ic_profile"
                 android:title="Profile" />
+
             <item android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_settings"
                 android:title="Settings" />
         </menu>
     </item>
+
+
 
 
 </menu>
