@@ -1,4 +1,4 @@
-package com.example.safeparkingzonesapp;
+package com.example.safeparkingzones;
 
 import org.junit.Test;
 
