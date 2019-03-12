@@ -11,7 +11,18 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /*
 
@@ -22,14 +33,27 @@ For menu click events go to the onNavigationItemSelected method at the bottom of
  */
 
 
-public class MapsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-
+public class MapsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+    private GoogleMap mMap;
+    private int iter = 0;
     private DrawerLayout drawer;
+    private readFile file_theft;
+    private List<LatLong> pointThiefs= new ArrayList<>(400000);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+
+        //setup map for points
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.map_shivam);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+
+        pointThiefs = file_theft.start();
+
+
         setContentView(R.layout.drawer_layout);
 
         //setup toolbar
@@ -64,7 +88,32 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
 //        }
 
 
+
     }
+    //TODO: create button to show points top ten we can sort them later
+
+    @Override
+    public void onMapReady(GoogleMap googleMap){
+        mMap =  googleMap;
+
+        setContentView(R.layout.button_showpoint);
+
+        final Button button = findViewById(R.id.button_id);
+        button.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+
+                LatLong x = pointThiefs.get(iter);
+                marker(x);
+                iter++;
+
+            }
+        });
+    }
+
+
+
+
+
 
     //closes or opens menu depending on its state
     @Override
@@ -175,4 +224,17 @@ public class MapsActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
+
+
+//Helper functions
+    private void marker(LatLong in){
+        mMap.addMarker(new MarkerOptions().position(in.getGeo()));
+//                .title(in.getName()));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(in.getGeo()));
+    }
+
+
+
 }
