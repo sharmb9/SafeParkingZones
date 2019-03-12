@@ -1,4 +1,4 @@
-package com.myappcompany.user.mapfun;
+package com.myappcompany.user.safeparkingzones;
 
 import org.junit.Test;
 

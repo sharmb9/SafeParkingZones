@@ -2,6 +2,7 @@ package com.myappcompany.user.safeparkingzones;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -185,5 +186,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
         }
+
+
+     public void goToSortedView(View view){
+         Intent intent = new Intent(getApplicationContext(), SortedByDistActivity.class);
+         startActivity(intent);
+     }
     }
 
