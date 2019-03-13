@@ -40,6 +40,10 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    double userLat = 41.847150;
+    double userLon = -87.668809;
+
+    LatLng userLocation = new LatLng(userLat, userLon);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,68 +53,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-    }
-
-    //Loads markers to google maps
-    public void loadMarkers(String dataset){
-        List<LatLng> latLngList= new ArrayList<LatLng>(); //an arrayList of type LatLng(40,95)
-//        change the file to parking spots because that is what we are supposed to show with markers
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open(dataset)))) {
-
-            String line = "";
-            int count = 0;
-            while ((line = reader.readLine()) != null) // Reads the dataset
-            {
-                reader.readLine(); //skips the first line, since that's coloumn names
-                line = reader.readLine();
-                //converts address to coordinates
-                LatLng address = getLocationFromAddress(this, line);
-                //adds to convereted coordinates to arrayList
-                latLngList.add(new LatLng(address.latitude, address.longitude));
-                count++;
-            }
-
-
-
-            //Add different markers
-            addMarkers(latLngList);
-
-            //ZOOMS camera to first location from dataset for now, will change location later
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngList.get(1),12));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //Adds different markers based on safety and approximity from user
-    public void addMarkers(List<LatLng> latLngList ){
-        int coordCount=0;
-        for(LatLng pos : latLngList)
-        {
-//                Log.i("Position", String.valueOf(pos));
-            LatLng parkingSpot = new LatLng(pos.latitude,pos.longitude);
-            //adding different color markers to different coordinates, will change this later where colors will be assigned according to safety level
-            if(coordCount<=5){
-                mMap.addMarker(new MarkerOptions()
-                        .position(parkingSpot)
-                        .title("Parking Spot")// change title to something more descriptive
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-            }
-            else if (coordCount>5 && coordCount <=10){
-                mMap.addMarker(new MarkerOptions()
-                        .position(parkingSpot)
-                        .title("Parking Spot")// change title to something more descriptive
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-            }
-            else{
-                mMap.addMarker(new MarkerOptions()
-                        .position(parkingSpot)
-                        .title("Parking Spot")// change title to something more descriptive
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            }
-
-            coordCount++;
-        }
     }
 
     public void onMapSearch(View view){
@@ -129,11 +71,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Address searchedAddress = addressList.get(0);
             LatLng latLng = new LatLng(searchedAddress.getLatitude(), searchedAddress.getLongitude());
             //adds marker to searched location(will change color of this later to make it distinct from parking spots
-            mMap.addMarker(new MarkerOptions().position(latLng).title("Location"));
             mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 
             //loads parkings spots
             loadMarkers("final_parking_zones.csv");
+        }
+    }
+
+    //Loads markers to google maps
+    public void loadMarkers(String dataset){
+        //for testing, keep changing these values to search different locations(will use loction from searhc bar later)
+
+
+        final Location[] parkingZones;
+
+//        change the file to parking spots because that is what we are supposed to show with markers
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open(dataset)))) {
+
+            //parkingZones = new Location[Sort.countLines(dataset)];
+            parkingZones = new Location[101];
+            reader.readLine(); //skips the first line, since that's coloumn names
+            String line = "";
+            int index = 0;
+            //(line = reader.readLine()) != null
+            //index<=20
+            while (index<=100) // Reads first 20 address from the dataset for now(change later)
+            {
+                line = reader.readLine();
+                //converts address to coordinates
+                LatLng address = getLocationFromAddress(this, line);
+
+                double lat = address.latitude;
+                double lon = address.longitude;
+                double dist = Sort.distance(userLocation.latitude, userLocation.longitude, lat, lon);
+
+                //adds to convereted coordinates with their distance from searched location to arrayList
+                parkingZones[index]=(new Location(lat, lon, dist));
+                index++;
+            }
+
+            //sort the list by distance from user
+            Merge.sortMerge(parkingZones, parkingZones.length);
+
+            //Add different markers
+            addMarkers(parkingZones);
+
+            //ZOOMS camera to first location from dataset for now, will change location later
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,12));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -143,7 +129,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Geocoder coder= new Geocoder(context);
         List<Address> address;
         LatLng p1 = null;
-
         try
         {
             address = coder.getFromLocationName(strAddress, 5);
@@ -162,7 +147,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             e.printStackTrace();
         }
         return p1;
+    }
 
+    //Adds different markers to 15 nearest parking spots from searched location based on safety
+    public void addMarkers(Location[] parkingZonesList ){
+        int coordCount=0;
+        //iterate through a LatLng List
+        for(Location spot : parkingZonesList)
+        {
+//                Log.i("Position", String.valueOf(pos));
+            LatLng parkingSpot = new LatLng(spot.getLat(),spot.getLon());
+            //adding different color markers to different coordinates, will change this later where colors will be assigned according to safety level
+            if(coordCount<=5){
+                mMap.addMarker(new MarkerOptions()
+                        .position(parkingSpot)
+                        .title("Parking Spot")// change title to something more descriptive
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+            }
+            else if (coordCount>5 && coordCount <=10){
+                mMap.addMarker(new MarkerOptions()
+                        .position(parkingSpot)
+                        .title("Parking Spot")// change title to something more descriptive
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            }
+            else if (coordCount>10 && coordCount <=15){
+                mMap.addMarker(new MarkerOptions()
+                        .position(parkingSpot)
+                        .title("Parking Spot")// change title to something more descriptive
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            }
+
+            coordCount++;
+        }
     }
 
 
@@ -179,9 +195,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //show a marker here too
         mMap = googleMap;
         // Add a marker in Chicago and move the camera
-        LatLng chicago = new LatLng(41.8781, -87.62938);
-        mMap.addMarker(new MarkerOptions().position(chicago).title("Marker in Chicago"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(chicago,12));
+        mMap.addMarker(new MarkerOptions().position(userLocation)
+                .title("Marker in Chicago")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,12));
         }
 
     //goes to SortedByDistActivity on clicking the sort by distance button

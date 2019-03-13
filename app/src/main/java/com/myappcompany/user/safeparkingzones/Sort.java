@@ -18,12 +18,13 @@ public class Sort {
         //double userLon = Double.parseDouble(args[1]);
 
         //create list for parking zone coordinates
-        final Location[] parkingZones = new Location[countLines()];
+        String dataset="File.csv";
+        final Location[] parkingZones = new Location[countLines(dataset)];
 
         //read dataset and add coordinates with their distance from the user location/searched location to list
         BufferedReader readFile;
         try {
-            readFile = new BufferedReader(new FileReader("TestData.csv")); //file for testing only, change later
+            readFile = new BufferedReader(new FileReader(dataset)); //file for testing only, change later
             String line = readFile.readLine();
             int index = 0;
             while ((line = readFile.readLine()) != null) {
@@ -63,11 +64,11 @@ public class Sort {
     }
 
     //count number of lines in the file
-    private static int countLines() {
+    public static int countLines(String dataset) {
         int lines = 0;
         BufferedReader readFile;
         try {
-            readFile = new BufferedReader(new FileReader("TestData.csv"));
+            readFile = new BufferedReader(new FileReader(dataset));
             String line = readFile.readLine();
             while ((line = readFile.readLine()) != null) {
                 lines++;
