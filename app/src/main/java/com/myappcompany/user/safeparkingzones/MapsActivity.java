@@ -189,10 +189,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
-    //goes to SortedByDistActivty on clicking the sort by distance button
-     public void goToSortedView(View view){
+    //goes to SortedByDistActivity on clicking the sort by distance button
+     public void goToSortedDistView(View view){
          Intent intent = new Intent(getApplicationContext(), SortedByDistActivity.class);
          startActivity(intent);
      }
+
+    //goes to SortedBySafetyActivty on clicking the sort by safety button
+    public void goToSortedSafetyView(View view){
+        Intent intent = new Intent(getApplicationContext(), SortedBySafetyActivity.class);
+        startActivity(intent);
+    }
     }
 

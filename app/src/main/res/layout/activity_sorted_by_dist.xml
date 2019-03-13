@@ -7,7 +7,7 @@
     tools:context=".SortedByDistActivity">
 
     <ListView
-        android:id="@+id/sortedListView"
+        android:id="@+id/sortedDistListView"
         android:layout_width="395dp"
         android:layout_height="715dp"
         android:layout_marginStart="8dp"

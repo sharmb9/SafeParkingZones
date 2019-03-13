@@ -3,20 +3,43 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="5dp"
-        android:background="#359c5e"
-        android:onClick="goToSortedView"
-        android:padding="8dp"
-        android:text="Sort By Distance"
-        android:textColor="#ffffff" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary">
 
+        <Button
+            android:id="@+id/sortByDistButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginBottom="5dp"
+            android:background="#359c5e"
+            android:onClick="goToSortedDistView"
+            android:padding="8dp"
+            android:text="Sort By Distance"
+            android:textColor="#ffffff" />
 
+        <Button
+            android:id="@+id/sortBySafeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="152dp"
+            android:layout_marginBottom="5dp"
+            android:background="#359c5e"
+            android:onClick="goToSortedSafetyView"
+            android:padding="8dp"
+            android:text="Sort By Safety"
+            android:textColor="#ffffff" />
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

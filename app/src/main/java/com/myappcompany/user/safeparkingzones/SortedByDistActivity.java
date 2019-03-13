@@ -20,7 +20,7 @@ public class SortedByDistActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sorted_by_dist);
 
         //add code to sort the parking spots by distance
-        ListView sortedListView = findViewById(R.id.sortedListView);
+        ListView sortedListView = findViewById(R.id.sortedDistListView);
         ArrayList<String> sortedSpots = new ArrayList<String>();
         //REMOVE THIS LATER
         sortedSpots.add("Spot A");
