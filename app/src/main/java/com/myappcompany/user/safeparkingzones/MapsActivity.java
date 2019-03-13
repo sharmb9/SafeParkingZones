@@ -1,5 +1,7 @@
 package com.myappcompany.user.safeparkingzones;
-
+/**
+ * @author Bilaval Sharma
+ */
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -47,73 +49,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
-
-
     }
 
-    //Loads markers from dataset to google maps
+    //Loads markers to google maps
     public void loadMarkers(String dataset){
-        List<LatLng> latLngList;
+        List<LatLng> latLngList= new ArrayList<LatLng>(); //an arrayList of type LatLng(40,95)
 //        change the file to parking spots because that is what we are supposed to show with markers
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open(dataset)))) {
-            //an arrayList of type LatLng(40,95)
-            latLngList = new ArrayList<LatLng>();
+
             String line = "";
-//        skips first line
-            try {
-                reader.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             int count = 0;
-            try {
-                while (count <= 15) // Reads first 15 coordinates to load data quickly, change this later to search coordinates within 500 m os searches location
-                {
-                    line = reader.readLine();
-                    //converts address to coordinates
-                    LatLng address = getLocationFromAddress(this, line);
-                    //adds to convereted coordinates to arrayList
-                    latLngList.add(new LatLng(address.latitude, address.longitude));
-                    count++;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            int coordCount=0;
-            for(LatLng pos : latLngList)
+            while ((line = reader.readLine()) != null) // Reads the dataset
             {
-//                Log.i("Position", String.valueOf(pos));
-                LatLng parkingSpot = new LatLng(pos.latitude,pos.longitude);
-                //adding different color markers to different coordinates, will change this later where colors will be assigned according to safety level
-                if(coordCount<=5){
-                    mMap.addMarker(new MarkerOptions()
-                            .position(parkingSpot)
-                            .title("Parking Spot")// change title to something more descriptive
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-                }
-                else if (coordCount>5 && coordCount <=10){
-                    mMap.addMarker(new MarkerOptions()
-                            .position(parkingSpot)
-                            .title("Parking Spot")// change title to something more descriptive
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-                }
-                else{
-                    mMap.addMarker(new MarkerOptions()
-                            .position(parkingSpot)
-                            .title("Parking Spot")// change title to something more descriptive
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                }
-
-                coordCount++;
+                reader.readLine(); //skips the first line, since that's coloumn names
+                line = reader.readLine();
+                //converts address to coordinates
+                LatLng address = getLocationFromAddress(this, line);
+                //adds to convereted coordinates to arrayList
+                latLngList.add(new LatLng(address.latitude, address.longitude));
+                count++;
             }
+
+
+
+            //Add different markers
+            addMarkers(latLngList);
+
             //ZOOMS camera to first location from dataset for now, will change location later
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngList.get(1),12));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    //Adds different markers based on safety and approximity from user
+    public void addMarkers(List<LatLng> latLngList ){
+        int coordCount=0;
+        for(LatLng pos : latLngList)
+        {
+//                Log.i("Position", String.valueOf(pos));
+            LatLng parkingSpot = new LatLng(pos.latitude,pos.longitude);
+            //adding different color markers to different coordinates, will change this later where colors will be assigned according to safety level
+            if(coordCount<=5){
+                mMap.addMarker(new MarkerOptions()
+                        .position(parkingSpot)
+                        .title("Parking Spot")// change title to something more descriptive
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+            }
+            else if (coordCount>5 && coordCount <=10){
+                mMap.addMarker(new MarkerOptions()
+                        .position(parkingSpot)
+                        .title("Parking Spot")// change title to something more descriptive
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            }
+            else{
+                mMap.addMarker(new MarkerOptions()
+                        .position(parkingSpot)
+                        .title("Parking Spot")// change title to something more descriptive
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            }
+
+            coordCount++;
         }
     }
 
