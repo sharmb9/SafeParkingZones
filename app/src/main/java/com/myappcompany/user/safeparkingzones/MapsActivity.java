@@ -182,11 +182,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         //show a marker here too
         mMap = googleMap;
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(41.8781, -87.62938);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Chicago"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
+        // Add a marker in Chicago and move the camera
+        LatLng chicago = new LatLng(41.8781, -87.62938);
+        mMap.addMarker(new MarkerOptions().position(chicago).title("Marker in Chicago"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(chicago,12));
         }
 
     //goes to SortedByDistActivity on clicking the sort by distance button

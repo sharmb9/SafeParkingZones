@@ -53,7 +53,8 @@
         android:onClick="goToSortedDistView"
         android:padding="8dp"
         android:text="Sort By Distance"
-        android:textColor="@color/common_google_signin_btn_text_dark_focused" />
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:textSize="12sp"/>
 
     <Button
         android:id="@+id/sortBySafeButton"
@@ -63,13 +64,14 @@
         android:layout_alignParentEnd="true"
         android:layout_marginStart="5dp"
         android:layout_marginTop="55dp"
-        android:layout_marginEnd="144dp"
+        android:layout_marginEnd="124dp"
         android:layout_marginBottom="5dp"
         android:background="@color/colorAccent"
         android:onClick="goToSortedSafetyView"
         android:padding="8dp"
         android:text="Sort By Safety"
-        android:textColor="@color/common_google_signin_btn_text_dark_focused" />
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/textView2"
