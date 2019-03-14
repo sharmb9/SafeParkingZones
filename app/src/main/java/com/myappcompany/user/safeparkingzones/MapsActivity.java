@@ -39,11 +39,19 @@ import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
-    double userLat = 41.847150;
-    double userLon = -87.668809;
 
-    LatLng userLocation = new LatLng(userLat, userLon);
+    private GoogleMap mMap;
+    EditText locationSearch;
+    List<Address> userAddressList;
+    String location="";
+    Geocoder geocoder;
+    double userLat;
+    double userLon;
+    LatLng userLocation;
+    //change these values to search a new locatin, will change this later to get user input
+//    double userLat = 41.778554;
+//    double userLon = -87.651920;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,33 +61,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+
     }
 
     public void onMapSearch(View view){
-        EditText locationSearch = (EditText) findViewById(R.id.editText);
-        String location = locationSearch.getText().toString();
-        List<Address> addressList = null;
+        locationSearch=(EditText) findViewById(R.id.editTextSearch);
+        location = locationSearch.getText().toString();
+
 
         if (location != null || !location.equals("")) {
-            Geocoder geocoder = new Geocoder(this);
+            geocoder = new Geocoder(this);
             try {
-                addressList = geocoder.getFromLocationName(location, 1);
+                userAddressList = geocoder.getFromLocationName(location, 1);
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Address searchedAddress = addressList.get(0);
-            LatLng latLng = new LatLng(searchedAddress.getLatitude(), searchedAddress.getLongitude());
+            Address searchedAddress = userAddressList.get(0);
+            userLat= searchedAddress.getLatitude();
+            userLon= searchedAddress.getLongitude();
+            userLocation= new LatLng(userLat, userLon);//put user input converted too coordinates here
             //adds marker to searched location(will change color of this later to make it distinct from parking spots
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(userLocation));
 
-            //loads parkings spots
-            loadMarkers("final_parking_zones.csv");
+            //loads parkings spots (enter an if-else condition here)
+            loadMarkers("final_parking_zones.csv",userLat, userLon);
         }
     }
 
     //Loads markers to google maps
-    public void loadMarkers(String dataset){
+    public void loadMarkers(String dataset, double userLat, double userLon){
         //for testing, keep changing these values to search different locations(will use loction from searhc bar later)
 
 
@@ -89,13 +102,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open(dataset)))) {
 
             //parkingZones = new Location[Sort.countLines(dataset)];
-            parkingZones = new Location[101];
+            parkingZones = new Location[51];
             reader.readLine(); //skips the first line, since that's coloumn names
             String line = "";
             int index = 0;
             //(line = reader.readLine()) != null
             //index<=20
-            while (index<=100) // Reads first 20 address from the dataset for now(change later)
+            while (index<=50) // Reads first 50 address from the dataset for now(change later)
             {
                 line = reader.readLine();
                 //converts address to coordinates
@@ -103,7 +116,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 double lat = address.latitude;
                 double lon = address.longitude;
-                double dist = Sort.distance(userLocation.latitude, userLocation.longitude, lat, lon);
+                double dist = Sort.distance(userLat, userLon, lat, lon);
 
                 //adds to convereted coordinates with their distance from searched location to arrayList
                 parkingZones[index]=(new Location(lat, lon, dist));
@@ -195,10 +208,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //show a marker here too
         mMap = googleMap;
         // Add a marker in Chicago and move the camera
-        mMap.addMarker(new MarkerOptions().position(userLocation)
-                .title("Marker in Chicago")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,12));
+//        mMap.addMarker(new MarkerOptions().position(userLocation)
+//                .title("Marker in Chicago")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,12));
         }
 
     //goes to SortedByDistActivity on clicking the sort by distance button
