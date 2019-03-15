@@ -2,6 +2,7 @@ package com.myappcompany.user.safeparkingzones;
 /**
  * @author Bilaval Sharma
  */
+import android.location.Address;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -16,12 +17,17 @@ public class SortedBySafetyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sorted_by_safety);
 
-        //add code to sort parking spots by safety here
+        //Change this and dadd code to sort parking spots by safety here
         ListView sortedSafetyListView = findViewById(R.id.sortedSafetyListView);
-        ArrayList<String> sortedSpots = new ArrayList<String>();
+        ArrayList<Location> sortedSpots = new ArrayList<Location>();
 
-        sortedSpots.add("Spot A");
-        sortedSpots.add("Spot B");
+        for(Location spot : MapsActivity.parkingZones){
+            sortedSpots.add(spot);
+        }
+
+
+//        sortedSpots.add("Spot A");
+//        sortedSpots.add("Spot B");
 
         ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, sortedSpots);
         sortedSafetyListView.setAdapter(arrayAdapter);
