@@ -1,6 +1,5 @@
 package module.activity;
 
-import static org.junit.Assert.assertTrue;
 
 import java.io.*;
 
@@ -27,7 +26,7 @@ public class TheftDis {
 	}
 	
 	
-	public static Location[] result(String data) {
+	public static Location[] result(String data, int threshholdDis) {
 		
 		double userLat = 41.867150;
 		double userLon = -87.609889;
@@ -44,7 +43,7 @@ public class TheftDis {
 				double lat = Double.parseDouble(line.split(",")[0]);
 				double lon = Double.parseDouble(line.split(",")[1]);
 				double dist = distance(userLat, userLon, lat, lon);
-				if(dist >= 1) {
+				if(dist >= threshholdDis) {
 					TheftZones[index] = new Location(lat, lon, dist);
 					index++;
 				}
@@ -68,7 +67,7 @@ public class TheftDis {
 
 	}
 	public static void main(String[] args) {
-		Location[] res = TheftDis.result("data/theft.csv");
+		Location[] res = TheftDis.result("data/theft.csv", 1);
 
 		for (int i =0 ;i < 100; i++) {
 			System.out.println(res[i]);

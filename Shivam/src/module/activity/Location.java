@@ -6,7 +6,7 @@ public class Location implements Comparable<Location>{
 	private final double lat; //parking zone latitude
 	private final double lon; //parking zone longitude
 	private final double dist; // distance from user
-	
+
 
 	
 	public double getLat() {return lat;} 
