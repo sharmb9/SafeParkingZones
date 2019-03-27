@@ -31,7 +31,7 @@ public class SortedByDistActivity extends AppCompatActivity {
 
         //Shows 15 nearest spots in sorted order
         int count=0;
-        for(Location spot : MapsActivity.parkingZones){
+        for(Location spot : MapsActivity.parkingZonesArrayList){
             if(count<=15){
                 Geocoder geocoder;
                 List<Address> addresses;

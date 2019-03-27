@@ -40,7 +40,7 @@ public class Sort {
         }
 
         //sort the list by distance from user
-        Merge.sortMerge(parkingZones, parkingZones.length);
+        //Merge.sortMerge(parkingZones, parkingZones.length);
 
         //delete later, just for testing(Gets 15 nearest parking spots from the user)
         for (int i = 0; i < 15; i++) {
