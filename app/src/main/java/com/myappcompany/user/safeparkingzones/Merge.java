@@ -1,9 +1,10 @@
 package com.myappcompany.user.safeparkingzones;
 
-import java.util.ArrayList;
-
 /**
+ * Implements merge sort using the Comparable interface
+ *
  * @author Seda Mete
+ *
  */
 public class Merge {
     /**
@@ -12,10 +13,8 @@ public class Merge {
      * @param x - the input array containing products that need to be sorted.
      * @param n - the size of the input array
      */
-    public static void sortMerge (Comparable[] x, int n ) {
-        //aux = new ArrayList<Location>();
+    public static void sortMerge ( Comparable[] x, int n ) {
         aux = new Comparable[n];
-        //n= aux.size();
         sort(x, 0, n-1);
     }
 
@@ -38,7 +37,6 @@ public class Merge {
         int i = low;
         int j = middle+1;
         for (int k = low; k <= high; k++)
-            //aux.set(k, x.get(k));
             aux[k] = x[k];
         for (int k = low; k <= high; k++) {
             if (i > middle)

@@ -18,8 +18,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Class to show a list view of parking spots sorted by distance from the user
+ */
 public class SortedByDistActivity extends AppCompatActivity {
 
+    /**
+     *Defines the starting state of SortedByDistActivity
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +38,7 @@ public class SortedByDistActivity extends AppCompatActivity {
 
         //Shows 15 nearest spots in sorted order
         int count=0;
-        for(Location spot : MapsActivity.parkingZonesArrayList){
+        for(Location spot : MapsActivity.parkingZones){
             if(count<=15){
                 Geocoder geocoder;
                 List<Address> addresses;
@@ -40,8 +47,8 @@ public class SortedByDistActivity extends AppCompatActivity {
                 try {
                     addresses = geocoder.getFromLocation(spot.getLat(), spot.getLon(), 1);
                     String address = addresses.get(0).getAddressLine(0);
-                    String city = addresses.get(0).getLocality();
-                    spotAddress = address + city;
+                    //String city = addresses.get(0).getLocality();
+                    spotAddress = address;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -50,9 +57,7 @@ public class SortedByDistActivity extends AppCompatActivity {
             }
         }
 
-
         //put the data addresses from the arraylist in listView
-
         ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, sortedSpots);
         sortedListView.setAdapter(arrayAdapter);
     }

@@ -10,8 +10,15 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+/**
+ * Class to show a list view of parking spots sorted by safety and distance from the user
+ */
 public class SortedBySafetyActivity extends AppCompatActivity {
 
+    /**
+     * Defines the starting state of the class
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
