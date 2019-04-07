@@ -62,14 +62,13 @@ public class TheftDis {
 
 
 	}
-//	public static void main(String[] args) {
-//		List<Location> res = TheftDis.result("data/theft.csv", 1);
-//
-//		for (int i =0 ;i < res.size(); i++) {
-//			System.out.println(res.get(i));
-//
-//	
-//		}
-//
-//	}
+	public static void main(String[] args) {
+	
+	String str = "(((A|B)*|CD*|EFG)*)*";
+	String[] temp = str.split("");
+	for(int i =0; i < temp.length;i++) {
+		System.out.println(i +" -> " +temp[i]);
+	}
+		}
+	
 	}

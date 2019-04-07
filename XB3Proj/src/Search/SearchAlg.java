@@ -80,20 +80,24 @@ import java.util.List;
 	    {    
 			List<String> list = new ArrayList<String>();
 			list = Read.read();
+			List<String> res = new ArrayList<String>();
 
-
+			//Input from user - - here pre defined
 			String pattern = "CLARE".toLowerCase();
 
 			for(int i =0 ; i <list.size();i++) {
 				SearchAlg bm = new SearchAlg();
 
 				if(bm.findPattern(list.get(i), pattern)) {
-					System.out.println("Found");
-					break;
-				}
+					
+					res.add(list.get(i));
+					}
 
 			}
-			
+		if(res.size() > 0) {
+			System.out.println("Found");
+
+		}
 	    }
 }
 	/**
