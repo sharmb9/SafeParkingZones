@@ -5,16 +5,17 @@ import java.util.List;
 
 	public class SearchAlg
 	{
-	    public int findPattern(String t, String p)
+	    public boolean findPattern(String t, String p)
 	    {
 	        char[] text = t.toCharArray();
 	        char[] pattern = p.toCharArray();
 	        int pos = indexOf(text, pattern);
 	        if (pos == -1) {
-	        return -1;}
+	        return false;}
 	        
 	        else {
-	        	return 1;
+//	        	return pos;
+	        	return true;
 	        	}
 	    }
 	    /** Function to calculate index of pattern substring **/
@@ -80,23 +81,59 @@ import java.util.List;
 			List<String> list = new ArrayList<String>();
 			list = Read.read();
 
-			List<Integer> res = new ArrayList<Integer>();
 
-			//input from user
-	        String pattern = "CLARE".toLowerCase();
-	        for(int i =0 ; i < list.size();i++) {
-	        	
-		        String text = list.get(i).toString();
+			String pattern = "CLARE".toLowerCase();
 
-		        SearchAlg bm = new SearchAlg(); 
-		        
-		        if( bm.findPattern(text, pattern) > 0) {
-		        	res.add(i);
-		        }
-	        }
-	        for(int k =0 ; k < res.size();k++) {
-	        System.out.println(list.get(res.get(k)));
-   
-	        }
+			for(int i =0 ; i <list.size();i++) {
+				SearchAlg bm = new SearchAlg();
+
+				if(bm.findPattern(list.get(i), pattern)) {
+					System.out.println("Found");
+					break;
+				}
+
+			}
+			
 	    }
 }
+	/**
+	 * //input from user
+	        String txt = "Hey This is hello (pattern is clare) world string".toLowerCase();
+	        String pattern = "CLARE".toLowerCase();
+
+			System.out.println("test1\nText input: \n" + txt + "\nInput pattern to be found:\n" +pattern) ;
+			System.out.println() ;
+
+	        
+	        
+
+	        System.out.println("pattern found at " + bm1.findPattern(txt, pattern));
+			System.out.println() ;
+
+	        
+	        String pattern1 = "Care".toLowerCase();
+
+			System.out.println("test2\nText input: \n" + txt + "\nInput pattern to be found:\n" +pattern1) ;
+			System.out.println() ;
+
+	        
+	        
+	        SearchAlg bm2 = new SearchAlg(); 
+
+	        System.out.println("pattern found " + bm2.findPattern(txt, pattern1) ? "true");
+//	        
+////	        for(int i =0 ; i < list.size();i++) {
+////	        	
+////		        String text = list.get(i).toString();
+////
+////		        SearchAlg bm = new SearchAlg(); 
+////		        
+////		        if( bm.findPattern(text, pattern) > 0) {
+////		        	res.add(i);
+////		        }
+////	        }
+////	        for(int k =0 ; k < res.size();k++) {
+////	        System.out.println(list.get(res.get(k)));
+////   
+////	        }
+ */
