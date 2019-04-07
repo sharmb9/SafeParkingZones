@@ -1,9 +1,14 @@
 package com.myappcompany.user.safeparkingzones;
 
 
+import android.content.Context;
+
+import com.opencsv.CSVReader;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * Sorts parking zones by distance from user
@@ -12,6 +17,9 @@ import java.io.IOException;
  *
  */
 public class Sort {
+
+    static Location[] parkingZones;
+    static CSVReader readFile;
     /**
      * Sorts parking zones by distance from user
      *
@@ -40,18 +48,20 @@ public class Sort {
      * @param fileName - name of data set to be read
      * @return An array of parking zone locations
      */
-    public static Location[] readData(String fileName) {
-        Location[] parkingZones = new Location[countLines(fileName)];
+    public static Location[] readData(String fileName, Context context) {
+         parkingZones= new Location[8556];
 
         //read dataset and add coordinates to a list
-        BufferedReader readFile;
+        //BufferedReader readFile;
         try {
-            readFile = new BufferedReader(new FileReader(fileName));
-            String line = readFile.readLine();
+            readFile = new CSVReader((new InputStreamReader(context.getAssets().open(fileName))));
+            String[] line;
+            readFile.readNext(); //skips the first line, since that's coloumn names
             int index = 0;
-            while ((line = readFile.readLine()) != null) {
-                double lat = Double.parseDouble(line.split(",")[0]);
-                double lon = Double.parseDouble(line.split(",")[1]);
+            while (index<=8555) {
+                line = readFile.readNext();
+                double lat = Double.parseDouble(line[0]);
+                double lon = Double.parseDouble(line[1]);
                 parkingZones[index] = new Location(lat, lon, 0);
                 index++;
             }
@@ -87,13 +97,13 @@ public class Sort {
     }
 
     //counts number of lines in the file
-    private static int countLines(String fileName) {
+    private static int countLines(String fileName, Context context) {
         int lines = 0;
-        BufferedReader readFile;
+        //readFile;
         try {
-            readFile = new BufferedReader(new FileReader(fileName));
-            String line = readFile.readLine();
-            while ((line = readFile.readLine()) != null) {
+            new CSVReader((new InputStreamReader(context.getAssets().open(fileName))));
+            String[] line = readFile.readNext();
+            while ((line = readFile.readNext()) != null) {
                 lines++;
             }
             readFile.close();

@@ -56,7 +56,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double userLon;
     LatLng userLocation;
     static Location[] parkingZones;
-    static ArrayList<Location> parkingZonesArrayList;
     Marker markerUser;
     Marker markerSpot;
     ArrayList<Marker> markerArray;
@@ -118,52 +117,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     /**
      * Sorts the dataset by distance from the user location and implements the addMarker method
-     * @param dataset The input parking spot dataset
+     * @param fileName The input parking spot dataset
      * @param userLat User location latitude
      * @param userLon User location longitude
      */
-    public void showMarkers(String dataset, double userLat, double userLon){
-        try {
-            CSVReader reader = new CSVReader((new InputStreamReader(getAssets().open(dataset))));
-            String[] nextLine;
-            parkingZones = new Location [8556]; //parkingZonesArrayList = new ArrayList<Location>();
-            reader.readNext(); //skips the first line, since that's coloumn names
-            int index = 0;
-            //while ((nextLine=reader.readNext())!=null)
-            while (index<=8555) // Reads first 50 address from the dataset for now(change later)
-            {
-                nextLine = reader.readNext();
-                double lat = Double.parseDouble(nextLine[0]);
-                double lon = Double.parseDouble(nextLine[1]);
-                String addressLine= String.valueOf(lat) + " " + String.valueOf(lon);
-                //Log.i("Address", addressLine); checks that coordinates are being read
-                double dist = Sort.distance(userLat, userLon, lat, lon);
-
-                //adds to convereted coordinates with their distance from searched location to array
-                parkingZones[index]=(new Location(lat, lon, dist));
-                //parkingZonesArrayList.add(new Location(lat, lon, dist));
-                index++;
-            }
-
-            //for debugging
-            for(int i=0; i<parkingZones.length; i++){
-                //Log.i("Unsorted data: ", String.valueOf(spot.getLat() + " " + String.valueOf(spot.getLon())));
-                Log.i("Spot:",String.valueOf(parkingZones[i].getLon()));
-            }
-
-            //sort the list by distance from user
-            Merge.sortMerge(parkingZones, parkingZones.length);
-
-            //Add different markers
-            addMarkers(parkingZones);
-            //addMarkers(parkingZonesArrayList);
-
-            //adds marker and zooms camera to searched location
-            markerUser= mMap.addMarker(new MarkerOptions().position(userLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,15));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void showMarkers(String fileName, double userLat, double userLon){
+        parkingZones=Sort.readData(fileName, getApplicationContext());
+        Sort.nearestParkingZones(userLat, userLon,parkingZones);
+        //Add different markers
+        addMarkers(parkingZones);
+        //adds marker and zooms camera to searched location
+        markerUser= mMap.addMarker(new MarkerOptions().position(userLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,15));
     }
 
     /**
