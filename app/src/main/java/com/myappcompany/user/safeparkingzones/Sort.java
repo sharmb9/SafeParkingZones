@@ -49,16 +49,15 @@ public class Sort {
      * @return An array of parking zone locations
      */
     public static Location[] readData(String fileName, Context context) {
-         parkingZones= new Location[8556];
+         parkingZones= new Location[7193];
 
         //read dataset and add coordinates to a list
-        //BufferedReader readFile;
         try {
             readFile = new CSVReader((new InputStreamReader(context.getAssets().open(fileName))));
             String[] line;
             readFile.readNext(); //skips the first line, since that's coloumn names
             int index = 0;
-            while (index<=8555) {
+            while (index<parkingZones.length) {
                 line = readFile.readNext();
                 double lat = Double.parseDouble(line[0]);
                 double lon = Double.parseDouble(line[1]);

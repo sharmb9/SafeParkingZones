@@ -59,6 +59,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Marker markerUser;
     Marker markerSpot;
     ArrayList<Marker> markerArray;
+    static CSVReader readFile;
+    private static List<String> myList = new ArrayList<String>();
+    EditText locationCheck;
+    String checkLocation="";
+    static List<String> res;
+    List<Address> parkingAddressList;
+    double parkLat;
+    double parkLon;
+    LatLng parkLocation;
+    Marker markerParking;
 
     /**
      * Defines the starting state of the MapsActivity
@@ -73,6 +83,108 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+    }
+
+    public List<String> read(String fileName) {
+        try {
+            //File f = new File("data/parking.csv");
+            readFile = new CSVReader((new InputStreamReader(getAssets().open(fileName))));
+
+            readFile.readNext();
+
+            String[] str = readFile.readNext();
+
+            while(str != null) {
+                myList.add(str[0].toLowerCase()); //check this
+                Log.i("Address",str[0]);
+                str = readFile.readNext();
+            }
+            readFile.close();
+        }
+        catch ( Exception e) {
+            Log.i("Error",e.toString());
+        }
+
+        return myList;
+
+    }
+
+    /**
+     * Not working for now
+     * Checks if there is are any parking spots avaialable on the searched street and shows them on the map
+     * @param view
+     */
+    public void onMapCheck(View view){
+        locationCheck=(EditText) findViewById(R.id.editTextSearch);
+        checkLocation = locationCheck.getText().toString();
+
+        //hide the keyboard after user enters the location
+        InputMethodManager mgr= (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        mgr.hideSoftInputFromWindow(locationCheck.getWindowToken(),0);
+
+        List<String> list = new ArrayList<String>();
+        list = read("final_parking_zones.csv");
+        res = new ArrayList<String>();
+        String pattern = checkLocation.toLowerCase();
+
+        for(int i =0 ; i <list.size();i++) {
+            SearchAlg bm = new SearchAlg();
+
+            if(bm.findPattern(list.get(i), pattern)) {
+                res.add(list.get(i));
+            }
+        }
+        //if status is found, show markers
+        if(res.size()>0){
+            Toast toast = Toast.makeText(getApplicationContext(), "Parking spot found at: " + res.get(0), Toast.LENGTH_SHORT);
+            toast.show();
+            //just showing one spot for now
+            Log.i("Search result","Parking spots found!");
+                //convert addresses to coordinates here and show them using markers
+            geocoder = new Geocoder(this);
+            try {
+                parkingAddressList = geocoder.getFromLocationName(res.get(0), 1); //just showing one for now because geocoding takes time to convert
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Address searchedAddress = parkingAddressList.get(0);
+            parkLat= searchedAddress.getLatitude();
+            parkLon= searchedAddress.getLongitude();
+            parkLocation= new LatLng(parkLat, parkLon);
+            //adds marker to searched location
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(parkLocation));
+
+            markerParking= mMap.addMarker(new MarkerOptions().position(parkLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(parkLocation,15));
+
+
+            //uncomment following block to get all spots on street(slow becuase of geociding)
+
+//            for(int i=0; i<res.size(); i++ ){
+//                Log.i("Search result","Parking spots found!");
+//                //convert addresses to coordinates here and show them using markers
+//                geocoder = new Geocoder(this);
+//                try {
+//                    parkingAddressList = geocoder.getFromLocationName(res.get(0), 1); //just showing one for now because geocoding takes time to convert
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                Address searchedAddress = parkingAddressList.get(i);
+//                parkLat= searchedAddress.getLatitude();
+//                parkLon= searchedAddress.getLongitude();
+//                parkLocation= new LatLng(parkLat, parkLon);
+//                //adds marker to searched location
+//                mMap.animateCamera(CameraUpdateFactory.newLatLng(parkLocation));
+//
+//                markerParking= mMap.addMarker(new MarkerOptions().position(parkLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+//                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(parkLocation,15));
+//            }
+        }else{
+            Log.i("Search result", "Nothing found!");
+            Toast toast = Toast.makeText(getApplicationContext(), "nothing found!", Toast.LENGTH_SHORT);
+            toast.show();
+
+        }
     }
 
     /**
@@ -106,6 +218,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(markerUser != null){
                 markerUser.remove();
             }
+            markerUser= mMap.addMarker(new MarkerOptions().position(userLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,15));
 
             //loads parkings spots (enter an if-else condition here)
             showMarkers("final_parking_coord.csv",userLat, userLon); //change to final_parking_zones.csv
@@ -127,12 +241,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Add different markers
         addMarkers(parkingZones);
         //adds marker and zooms camera to searched location
-        markerUser= mMap.addMarker(new MarkerOptions().position(userLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,15));
     }
 
     /**
-     * Shows the the user location and the 15 nearest and safest parking spots on the map
+     * Shows the the user location and the 30 nearest and safest parking spots on the map
      * @param parkingZones The array containing sorted parking spots
      */
     private void addMarkers(Location[] parkingZones ){
@@ -147,20 +259,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         {
             LatLng parkingSpot = new LatLng(parkingZones[i].getLat(),parkingZones[i].getLon());
             //adding different color markers to different coordinates, will change this later where colors will be assigned according to safety level
-            if(i<=5){
+            if(i<=10){
                 markerArray.add(mMap.addMarker(new MarkerOptions()
                         .position(parkingSpot)
                         .title("Parking Spot")// change title to something more descriptive
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
             }
-            else if (i>5 && i <=10){
+            else if (i>10 && i <=20){
                 markerArray.add(mMap.addMarker(new MarkerOptions()
                         .position(parkingSpot)
                         .title("Parking Spot")// change title to something more descriptive
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))));
             }
 
-            else if (i>10 && i <=15){
+            else if (i>20 && i <=30){
                 markerArray.add(mMap.addMarker(new MarkerOptions()
                         .position(parkingSpot)
                         .title("Parking Spot")// change title to something more descriptive
