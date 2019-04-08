@@ -9,42 +9,42 @@ import java.util.Scanner;
 public class FindSafeParkingSpots {
 	
 	//represents the user location
-	static Location user; 
-	
-	//used to temporarily represent parking spots while adding them to the hashtable
-	static Location parkingSpots;
+	private static Location user; 
 	
 	//start with one as the first location would be the user
-	static int totalNumberOfParkingSpots = 1;
+	private static int totalNumberOfParkingSpots = 1;
 	
 	//list of all theft zones
-	static List<Location> theftZones = new ArrayList<Location>();
+	private static List<Location> theftZones = new ArrayList<Location>();
 	
-	//change the value used to initialize the table(hardcoded to not have to open the file for now)
-	//its supposed to be the number of parking spots
-	static LinearProbingHashST<Integer, Location> hashT = new LinearProbingHashST<Integer, Location>(8700);
+	//hash table representing the user location and all the parking spots
+	private static LinearProbingHashST<Integer, Location> hashT = new 
+			LinearProbingHashST<Integer, Location>(8600);
 	
 	//frequency of all locationZones including the user, they are in the same order as in the hashTable
-	static List<Integer> theftFrequencyList = new ArrayList<Integer>();
+	private static List<Integer> theftFrequencyList = new ArrayList<Integer>();
 	
 	//variable containing the graph
-	static Digraph G;
+	private static Digraph G;
 	
-	//contains the list of adjacentSpots to every parking spot used for setting up DirectedEdges
+	//contains the list of adjacentSpots to every parking spot
 	//its indices are in the same order as the hashTable
-	static List<List<Integer>> adjacentSpots = new ArrayList<List<Integer>>();
+	//used to create the edges in the graph
+	private static List<List<Integer>> adjacentSpots = new ArrayList<List<Integer>>();
 	
 	//stores the list of final parking spots
-	static List<Integer> finalParkingSpots = new ArrayList<Integer>();
+	private static List<Integer> finalParkingSpots = new ArrayList<Integer>();
 	
-	//contains all theft locations, number is the total number of thefts
-	static Location[] theftDataSet;
+	//contains all theft locations
+	private static Location[] theftDataSet;
 	
 	//puts them in the array in order
-	static int theftIndex;
+	private static int theftIndex;
 	
 	//collects the overall size of the theftDataSet used
-	static int theftDataSetSize = 0;
+	private static int theftDataSetSize = 0;
+	
+	private static boolean hasPath;
 	
 	
 	//calculates the distance between two coordinates
@@ -161,7 +161,7 @@ public class FindSafeParkingSpots {
 	}
 	
 	//finds the theft frequencies of each given location within 2 kilometers
-	private static int findParkingTheftFrequencies(double latitude, double longitude, double threshold) 
+	public static int findParkingTheftFrequencies(double latitude, double longitude, double threshold) 
 	{
 		int theftCounter = 0;
 		
@@ -185,8 +185,11 @@ public class FindSafeParkingSpots {
 	}
 	
 	//adds each parking spot to the hashtable, it also adds the their theftFrequencies to the respective list
-	public static void addParkingSpotsToHT(double theftFrequencyRadius, double findParkingSpotRadius)
+	private static void addParkingSpotsToHT(double theftFrequencyRadius, double findParkingSpotRadius)
 	{		
+		//used to temporarily represent parking spots while adding them to the hashtable
+		Location parkingSpots;
+		
 		//setup parking spots so that they each have a location object and place them in the table
 		Scanner input;
 		
@@ -234,7 +237,7 @@ public class FindSafeParkingSpots {
 	}
 	
 	//finds all adjacent parking spots to each 
-	public static void findAdjacentParkingSpots(double threshold)
+	private static void findAdjacentParkingSpots(double threshold)
 	{
 		List<Integer> adjacentList;
 		for(int i = 0; i < hashT.size(); i++) {
@@ -259,7 +262,7 @@ public class FindSafeParkingSpots {
 	}
 	
 	//initializes the digraph and adds the respective edges
-	public static void setupGraph()
+	private static void setupGraph()
 	{	
 		G = new Digraph(totalNumberOfParkingSpots);
 		
@@ -276,7 +279,9 @@ public class FindSafeParkingSpots {
 	}
 	
 	
-	public static void findPathToParkingSpot(double lat, double lon)
+	//if there is a path to the parking spot from the source it gives parking spots that
+	//are connected to it, otherwise it gives the adjacent parking spots
+	private static void findPathToParkingSpot(double lat, double lon)
 	{
 		
 		BFS finalG = new BFS(G, 0);
@@ -299,17 +304,19 @@ public class FindSafeParkingSpots {
 						finalParkingSpots.add(item);
 					}
 					
+					hasPath = true;
+					
 					break;
 				} else {
 					//TODO: Change the distance in these parking spots to be compared with the main one
-					System.out.println("There is no direct path to that parking spot");
-					System.out.println("Here are the closest parking spots to the parking spot");
 					for(Integer item: G.adj(i)) {
 						hashT.get(item).setDist(distance(hashT.get(i).getLat(), hashT.get(i).getLon(),
 								hashT.get(item).getLat(), hashT.get(item).getLon()));
 						//add the next parking spots
 						finalParkingSpots.add(item);
 					}
+					
+					hasPath = false;
 					
 					break;
 				}
@@ -318,53 +325,110 @@ public class FindSafeParkingSpots {
 		}
 	}
 	
-	
-	public static List<Location> finalListOfLocations() 
+	//returns a hashtable containing location as keys, and their respective theft frequencies
+	//as the values to those keys
+	private static LinearProbingHashST<Location, Integer> finalListOfLocations() 
 	{
-		List<Location> finalList = new ArrayList<Location>();
+		int numberOfLocations = 0;
+		LinearProbingHashST<Location, Integer> finalHT;
 		
 		for(Integer item: finalParkingSpots) {
-			System.out.println(item);
-			finalList.add(hashT.get(item));
+			numberOfLocations += 1;
 		}
 		
-		return finalList;
+		finalHT = new LinearProbingHashST<Location, Integer>(numberOfLocations);
+		
+		for(Integer item: finalParkingSpots) {
+			finalHT.put(hashT.get(item), theftFrequencyList.get(item));
+		}
+		
+		return finalHT;
 	}
 	
+	/**
+     * Returns a hash table with the parking spots on the way as keys, and their theft frequencies
+     * as the values 
+     *
+     * @param  parkingSpotRadius looks at parking spots within the given km radius (recommended value: 2.00)
+     * @param  userLatitude the user's latitude
+     * @param  userLongitude the user's longitude
+     * @param  theftFrequencyRadius  calculates theft frequencies within the given km radius (recommend value: 2.00)
+     * @param  destLatitude the destination parking spot's latitude
+     * @param  destLongitude the destination parking spot's longitude
+     * @return a hash table containing all necessary information about the parking spots en route and
+     * their respective theft frequencies
+     */
+	public static LinearProbingHashST<Location, Integer> getGraphData(double parkingSpotRadius,
+			double userLatitude, double userLongitude, double theftFrequencyRadius, double destLatitude,
+			double destLongitude) 
+	{
+		
+//		//sets the user on the HashT and on the theft frequency list
+//		setupUserLocation(userLatitude, userLongitude);
+//		
+//		//obtains relevant theft frequency/location data
+//		loadTheftData(parkingSpotRadius);
+//		
+//		//calculate theft frequency within the given radius
+//		setupUserTheftFrequency(theftFrequencyRadius);
+//		
+//		addParkingSpotsToHT(theftFrequencyRadius, parkingSpotRadius);
+		
+		//all parking spots within the given parking spot radius divided by 4 are considered
+		//adjacent
+	    findAdjacentParkingSpots(parkingSpotRadius/4);
+	    
+	    setupGraph();
+	    
+	    //find path to the parking spot 
+	    findPathToParkingSpot(destLatitude, destLongitude);
+	    
+	    return finalListOfLocations();
+		
+	}
 	
+	/**
+	 * Displays if the there is a direct path between the user and the parking spot searched for
+	 * 
+	 * @return true if there is a direct path, false otherwise
+	 */
+	public static boolean wasPathFound() 
+	{ return hasPath; }
 
-	//for testing
+	
+	//example call
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		double findParkingSpotsWithinRadius = 2.00;
-
-		//university of chicago
+		//declare hashTable
+		LinearProbingHashST<Location, Integer> finalHT;
+		
+		
+		//dont call these, this is only for testing since the methods should be private to begin with
 		setupUserLocation(41.789722, -87.599724);
-		
-		loadTheftData(findParkingSpotsWithinRadius);
-		
-		//calculate the user theft frequency within 2 kilometers
+		loadTheftData(2.00);
 		setupUserTheftFrequency(2.00);
-	
-		//2 kilometers is the radius for theft frequency counting
-		addParkingSpotsToHT(2.00, findParkingSpotsWithinRadius);
+		addParkingSpotsToHT(2.00, 2.00);
 		
-	
-		//all parking spots within 2 kilometers are considered adjacent
-		findAdjacentParkingSpots(findParkingSpotsWithinRadius/4);
+		//assign it the final hashTable produced by the getGraphData function
+		finalHT = FindSafeParkingSpots.getGraphData(2.00, 41.789722, -87.599724, 
+				2.00, hashT.get(18).getLat(), hashT.get(18).getLon());
 		
-		setupGraph();
+		if(FindSafeParkingSpots.wasPathFound()) {
+			//means there is a direct path from the user to the parking spot
+			
+			System.out.println("List of parking spots on the way: ");
+			
+		} else {
+			//no direct path was found, the adjacent list will be shown instead
+			System.out.println("No direct path was found, here are the nearby parking spots, close"
+					+ " to the searched parking spot: ");
+		}
 		
-		//finds the path to this parking spot
-		findPathToParkingSpot(hashT.get(18).getLat(), hashT.get(18).getLon());
-		
-		List<Location> finalSpots = finalListOfLocations();
-		
-		System.out.println();
-		
-		for(Location item: finalSpots ) {
-			System.out.println(item);
+		//if there is a directPath the distance is relevant to the user, otherwise it is relevant
+		//to the parking spot being searched for
+		for(Location key: finalHT.keys()) {
+			System.out.println(key + " Theft Frequency: " + finalHT.get(key));
 		}
 		
 		
