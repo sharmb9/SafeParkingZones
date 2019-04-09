@@ -6,6 +6,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.v4.app.FragmentActivity;
@@ -19,6 +20,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.opencsv.CSVReader;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -69,6 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double parkLon;
     LatLng parkLocation;
     Marker markerParking;
+    Polyline line;
 
     /**
      * Defines the starting state of the MapsActivity
@@ -279,6 +283,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
             }
         }
+    }
+
+    //shows the parking spots in route from destination to source
+    //testing using parkings spots marker list for now
+    public void showPolyLines(View view){
+        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+        for (int z = 0; z < 30; z++) {
+            LatLng point =new LatLng(parkingZones[z].getLat(),parkingZones[z].getLon());
+            options.add(point);
+        }
+        line = mMap.addPolyline(options);
     }
 
 
