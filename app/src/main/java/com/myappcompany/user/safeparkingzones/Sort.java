@@ -42,6 +42,50 @@ public class Sort {
     }
 
     /**
+     * Sorts top 15 nearest parking zones by safety.
+     * Assumes the list given is already sorted by distance.
+     *
+     * @param parkingZones - All the parking zones sorted by distance from user
+     * @return The top 15 nearest parking zones, sorted by safety
+     */
+    public static Location[] nearestSafestParkingZones(Location[] nearestParkingZones) {
+        double dist; // theft distance from parking zone
+        Location[] safestParkingZones = new Location[15]; // holds top 15 nearest parking spots
+
+        //save top 15 nearest parking spots in a new array
+        for (int i = 0; i < 15; i++) {
+            safestParkingZones[i] = nearestParkingZones[i];
+        }
+
+        //reads theft dataset to calculate frequency
+        BufferedReader readFile;
+        try {
+            readFile = new BufferedReader(new FileReader("final_motor_theft_data.csv"));
+            String line = readFile.readLine();
+            while ((line = readFile.readLine()) != null) {
+                double theftLat = Double.parseDouble(line.split(",")[0]);
+                double theftLon = Double.parseDouble(line.split(",")[1]);
+                for (int i = 0; i < safestParkingZones.length; i++) {
+                    dist = distance(safestParkingZones[i].getLat(), safestParkingZones[i].getLon(), theftLat, theftLon);
+                    //theft is included in frequency if it is in a 150m radius of the parking zone
+                    if (dist < .15)
+                        safestParkingZones[i].setFreq(safestParkingZones[i].getFreq()+1);
+                }
+            }
+            readFile.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //sort the top 15 nearest by safety
+        Insertion.sortInsert(safestParkingZones);
+
+        //returns top 15 nearest parking zones sorted by safety
+        return safestParkingZones;
+    }
+
+    /**
      * Reads data set and returns a list of parking zone locations.
      * Parking zone distances are initially set to 0.
      *
@@ -61,7 +105,7 @@ public class Sort {
                 line = readFile.readNext();
                 double lat = Double.parseDouble(line[0]);
                 double lon = Double.parseDouble(line[1]);
-                parkingZones[index] = new Location(lat, lon, 0);
+                parkingZones[index] = new Location(lat, lon, 0, 0);
                 index++;
             }
             readFile.close();

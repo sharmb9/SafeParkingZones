@@ -10,6 +10,7 @@ public class Location implements Comparable<Location>{
     private final double lat; //parking zone latitude
     private final double lon; //parking zone longitude
     private double dist; // distance from user
+    private int freq; // frequency of crime
 
     /**
      * ADT for parking zone
@@ -18,10 +19,11 @@ public class Location implements Comparable<Location>{
      * @param lon - parking zone longitude
      * @param dist - parking zone distance from user
      */
-    public Location(double lat, double lon, double dist) {
+    public Location(double lat, double lon, double dist, int freq) {
         this.lat = lat;
         this.lon = lon;
         this.dist = dist;
+        this.freq = freq;
     }
 
     /**
@@ -41,6 +43,18 @@ public class Location implements Comparable<Location>{
      * @return Parking zone distance from user
      */
     public double getDist() {return dist;}
+
+    /**
+     * Get parking zone theft frequency
+     * @return Parking zone theft frequency
+     */
+    public int getFreq() {return freq;}
+
+    /**
+     * Set parking zone theft frequency
+     * @param theftFreq zone theft frequency
+     */
+    public void setFreq(int theftFreq) {this.freq = theftFreq;}
 
     /**
      * Set parking zone distance from user
