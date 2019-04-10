@@ -59,6 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double userLon;
     LatLng userLocation;
     static Location[] parkingZones;
+    static Location[] safestNearestParkingZones;
     Marker markerUser;
     Marker markerSpot;
     ArrayList<Marker> markerArray;
@@ -114,8 +115,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * Not working for now
-     * Checks if there is are any parking spots avaialable on the searched street and shows them on the map
+     * Checks if there is are any parking spots avaialable on the searched street and shows one if there is
      * @param view
      */
     public void onMapCheck(View view){
@@ -160,29 +160,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             markerParking= mMap.addMarker(new MarkerOptions().position(parkLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(parkLocation,15));
-
-
-            //uncomment following block to get all spots on street(slow becuase of geociding)
-
-//            for(int i=0; i<res.size(); i++ ){
-//                Log.i("Search result","Parking spots found!");
-//                //convert addresses to coordinates here and show them using markers
-//                geocoder = new Geocoder(this);
-//                try {
-//                    parkingAddressList = geocoder.getFromLocationName(res.get(0), 1); //just showing one for now because geocoding takes time to convert
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                Address searchedAddress = parkingAddressList.get(i);
-//                parkLat= searchedAddress.getLatitude();
-//                parkLon= searchedAddress.getLongitude();
-//                parkLocation= new LatLng(parkLat, parkLon);
-//                //adds marker to searched location
-//                mMap.animateCamera(CameraUpdateFactory.newLatLng(parkLocation));
-//
-//                markerParking= mMap.addMarker(new MarkerOptions().position(parkLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-//                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(parkLocation,15));
-//            }
         }else{
             Log.i("Search result", "Nothing found!");
             Toast toast = Toast.makeText(getApplicationContext(), "nothing found!", Toast.LENGTH_SHORT);
@@ -241,45 +218,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     public void showMarkers(String fileName, double userLat, double userLon){
         parkingZones=Sort.readData(fileName, getApplicationContext());
+        //sorts parkingZones by distance from the user
         Sort.nearestParkingZones(userLat, userLon,parkingZones);
+        //sorts sorted (by distance) parking spots by safety
+        safestNearestParkingZones= Sort.nearestSafestParkingZones(parkingZones, getApplicationContext());
         //Add different markers
-        addMarkers(parkingZones);
-        //adds marker and zooms camera to searched location
+        addMarkers(safestNearestParkingZones);
     }
 
     /**
-     * Shows the the user location and the 30 nearest and safest parking spots on the map
+     * Shows the the user location and the 30 nearest and marked by safety
+     * Green markers represent the safest parking zones, yellow markers represent the parking zones with intermediate safety whereas red
+     * markers represent the highly unsafe ones.
      * @param parkingZones The array containing sorted parking spots
      */
     private void addMarkers(Location[] parkingZones ){
         markerArray= new ArrayList<Marker>();
+
+
         //remove previous parking spot markers
         for (Marker markerSpot : markerArray){
             if (markerSpot!=null){
                 markerSpot.remove();
             }
         }
-        for(int i=0; i<parkingZones.length; i++) //i<parkingZones.length && sortedBySafetyParkingZones.length
+        for(int i=0; i<safestNearestParkingZones.length; i++)
         {
-            LatLng parkingSpot = new LatLng(parkingZones[i].getLat(),parkingZones[i].getLon());
-            //adding different color markers to different coordinates, will change this later where colors will be assigned according to safety level
+            LatLng parkingSpot = new LatLng(safestNearestParkingZones[i].getLat(),safestNearestParkingZones[i].getLon());
             if(i<=10){
                 markerArray.add(mMap.addMarker(new MarkerOptions()
                         .position(parkingSpot)
-                        .title("Parking Spot")// change title to something more descriptive
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))));
+                        .title("Parking Spot " + i)// change title to something more descriptive
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))));
             }
             else if (i>10 && i <=20){
                 markerArray.add(mMap.addMarker(new MarkerOptions()
                         .position(parkingSpot)
-                        .title("Parking Spot")// change title to something more descriptive
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))));
+                        .title("Parking Spot " + i)// change title to something more descriptive
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))));
             }
 
             else if (i>20 && i <=30){
                 markerArray.add(mMap.addMarker(new MarkerOptions()
                         .position(parkingSpot)
-                        .title("Parking Spot")// change title to something more descriptive
+                        .title("Parking Spot " + i)// change title to something more descriptive
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
             }
         }

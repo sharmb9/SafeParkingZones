@@ -18,12 +18,26 @@ public class Location implements Comparable<Location>{
      * @param lat - parking zone latitude
      * @param lon - parking zone longitude
      * @param dist - parking zone distance from user
+     * @param freq- frequency of theft within a certain radius of a parking spot
      */
     public Location(double lat, double lon, double dist, int freq) {
         this.lat = lat;
         this.lon = lon;
         this.dist = dist;
         this.freq = freq;
+    }
+
+    /**
+     * ADT for parking zone
+     *
+     * @param lat - parking zone latitude
+     * @param lon - parking zone longitude
+     * @param dist - parking zone distance from user
+     */
+    public Location(double lat, double lon, double dist) {
+        this.lat = lat;
+        this.lon = lon;
+        this.dist = dist;
     }
 
     /**

@@ -36,10 +36,10 @@ public class SortedByDistActivity extends AppCompatActivity {
         ListView sortedListView = findViewById(R.id.sortedDistListView);
         ArrayList<String> sortedSpots = new ArrayList<String>();
 
-        //Shows 15 nearest spots in sorted order
+        //Shows 30 nearest spots in sorted order
         int count=0;
         for(Location spot : MapsActivity.parkingZones){
-            if(count<=15){
+            if(count<=30){
                 Geocoder geocoder;
                 List<Address> addresses;
                 geocoder = new Geocoder(this, Locale.getDefault());

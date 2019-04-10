@@ -45,26 +45,28 @@ public class Sort {
      * Sorts top 15 nearest parking zones by safety.
      * Assumes the list given is already sorted by distance.
      *
-     * @param parkingZones - All the parking zones sorted by distance from user
+     * @param nearestParkingZones - All the parking zones sorted by distance from user
      * @return The top 15 nearest parking zones, sorted by safety
      */
-    public static Location[] nearestSafestParkingZones(Location[] nearestParkingZones) {
+    public static Location[] nearestSafestParkingZones(Location[] nearestParkingZones, Context context) {
         double dist; // theft distance from parking zone
-        Location[] safestParkingZones = new Location[15]; // holds top 15 nearest parking spots
+        Location[] safestParkingZones = new Location[30]; // holds top 30 nearest parking spots
 
         //save top 15 nearest parking spots in a new array
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 30; i++) {
             safestParkingZones[i] = nearestParkingZones[i];
         }
 
         //reads theft dataset to calculate frequency
-        BufferedReader readFile;
+        CSVReader readFile;
         try {
-            readFile = new BufferedReader(new FileReader("final_motor_theft_data.csv"));
-            String line = readFile.readLine();
-            while ((line = readFile.readLine()) != null) {
-                double theftLat = Double.parseDouble(line.split(",")[0]);
-                double theftLon = Double.parseDouble(line.split(",")[1]);
+            readFile = new CSVReader((new InputStreamReader(context.getAssets().open("sep_motor_locations.csv"))));
+            String[] line;
+            readFile.readNext(); //skips the first line, since that's coloumn names
+            int index = 0;
+            while ((line = readFile.readNext()) != null) {
+                double theftLat = Double.parseDouble(line[0]);
+                double theftLon = Double.parseDouble(line[1]);
                 for (int i = 0; i < safestParkingZones.length; i++) {
                     dist = distance(safestParkingZones[i].getLat(), safestParkingZones[i].getLon(), theftLat, theftLon);
                     //theft is included in frequency if it is in a 150m radius of the parking zone
