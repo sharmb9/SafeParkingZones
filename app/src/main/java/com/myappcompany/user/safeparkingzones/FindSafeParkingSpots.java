@@ -1,7 +1,13 @@
 package com.myappcompany.user.safeparkingzones;
 
+import android.content.Context;
+
+import com.opencsv.CSVReader;
+
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -72,22 +78,25 @@ public class FindSafeParkingSpots {
 
     }
 
-    private static void countTheftData(double theftRadius)
-    {
-        Scanner input;
+    private static void countTheftData(double theftRadius, Context context) throws IOException {
+        //Scanner input;
+        CSVReader input;
         try {
-            input = new Scanner(new File("data/final_motor_theft_set.csv"));
-            input.nextLine(); //skip first line
+            //input = new Scanner(new File("data/final_motor_theft_set.csv"));
+            input = new CSVReader((new InputStreamReader(context.getAssets().open("sep_motor_locations.csv"))));
+            String line[];
+            //input.nextLine(); //skip first line
+            input.readNext(); //skip first line
 
             //takes all theft locations and adds them to the theft array
-            while(input.hasNextLine()) {
+            while((line = input.readNext()) != null) {
 
-                String line = input.nextLine();
-                String[] tokens = line.split(",");
+                //String line = input.nextLine();
+                //String[] tokens = line.split(",");
 
                 //stores coordinates of the theft spot
-                double theftSpotLatitude = Double.parseDouble(tokens[0]);
-                double theftSpotLongitude = Double.parseDouble(tokens[1]);
+                double theftSpotLatitude = Double.parseDouble(line[0]);
+                double theftSpotLongitude = Double.parseDouble(line[1]);
 
                 if(distance(user.getLat(), user.getLon(), theftSpotLatitude, theftSpotLongitude) <= theftRadius) {
                     theftDataSetSize += 1;
@@ -101,16 +110,16 @@ public class FindSafeParkingSpots {
     }
 
     //setup theft data array
-    public static void loadTheftData(double theftRadius)
-    {
+    public static void loadTheftData(double theftRadius, Context context) throws IOException {
         //only uses theft data that is within the given radius times 3
         //it accounts for the radius surrounding the user, the final parking spot and the
         //furthest parking spot from the parking spot (just in case)
-        countTheftData(theftRadius * 3);
+        countTheftData(theftRadius * 3, context);
 
         theftDataSet = new Location[theftDataSetSize];
 
-        Scanner input;
+        //Scanner input;
+        CSVReader input;
 
         Location theftSpot;
 
@@ -120,18 +129,20 @@ public class FindSafeParkingSpots {
         double theftSpotLongitude;
 
         try {
-            input = new Scanner(new File("data/final_motor_theft_set.csv"));
-            input.nextLine(); //skip first line
+            //input = new Scanner(new File("data/final_motor_theft_set.csv"));
+            input=new CSVReader((new InputStreamReader(context.getAssets().open("sep_motor_locations.csv"))));
+            input.readNext(); //skip first line
+            String[] line;
 
             //takes all theft locations and adds them to the theft array
-            while(input.hasNextLine()) {
+            while((line = input.readNext()) != null) {
 
-                String line = input.nextLine();
-                String[] tokens = line.split(",");
+                //String line = input.nextLine();
+                //String[] tokens = line.split(",");
 
                 //stores coordinates of the theft spot
-                theftSpotLatitude = Double.parseDouble(tokens[0]);
-                theftSpotLongitude = Double.parseDouble(tokens[1]);
+                theftSpotLatitude = Double.parseDouble(line[0]);
+                theftSpotLongitude = Double.parseDouble(line[1]);
 
                 //distance is not gonna be preset for these
                 double distance = 0.00;
@@ -185,27 +196,31 @@ public class FindSafeParkingSpots {
     }
 
     //adds each parking spot to the hashtable, it also adds the their theftFrequencies to the respective list
-    private static void addParkingSpotsToHT(double theftFrequencyRadius, double findParkingSpotRadius)
-    {
+    //CHANGE TO PRIVATE
+    public static void addParkingSpotsToHT(double theftFrequencyRadius, double findParkingSpotRadius, Context context) throws IOException {
         //used to temporarily represent parking spots while adding them to the hashtable
         Location parkingSpots;
 
         //setup parking spots so that they each have a location object and place them in the table
-        Scanner input;
+        //Scanner input;
+        CSVReader input;
 
         try {
-            input = new Scanner(new File("data/final_parking_coord.csv"));
-            input.nextLine(); //skip first line
+            //input = new Scanner(new File("data/final_parking_coord.csv"));
+            input = new CSVReader((new InputStreamReader(context.getAssets().open("final_parking_coord.csv"))));
+
+            input.readNext(); //skip first line
+            String[] line;
 
             //takes all parking spots and adds them to the hash table
-            while(input.hasNextLine()) {
+            while((line = input.readNext()) != null) {
 
-                String line = input.nextLine();
-                String[] tokens = line.split(",");
+                //String line = input.nextLine();
+                //String[] tokens = line.split(",");
 
                 //stores coordinates of the parking spot
-                double parkingSpotLatitude = Double.parseDouble(tokens[0]);
-                double parkingSpotLongitude = Double.parseDouble(tokens[1]);
+                double parkingSpotLatitude = Double.parseDouble(line[0]);
+                double parkingSpotLongitude = Double.parseDouble(line[1]);
 
                 //stores the parking spot's distance from the user
                 double spotDistanceFromUser = distance(user.getLat(), user.getLon(),
@@ -405,10 +420,10 @@ public class FindSafeParkingSpots {
 
 
         //dont call these, this is only for testing since the methods should be private to begin with
-        setupUserLocation(41.799722, -87.699724);
-        loadTheftData(2.00);
-        setupUserTheftFrequency(2.00);
-        addParkingSpotsToHT(2.00, 2.00);
+//        setupUserLocation(41.799722, -87.699724);
+//        loadTheftData(2.00);
+//        setupUserTheftFrequency(2.00);
+//        addParkingSpotsToHT(2.00, 2.00);
 
         //assign it the final hashTable produced by the getGraphData function
         finalHT = FindSafeParkingSpots.getGraphData(2.00, 41.789722, -87.599724,

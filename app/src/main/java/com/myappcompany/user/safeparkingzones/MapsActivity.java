@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -74,6 +75,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng parkLocation;
     Marker markerParking;
     Polyline line;
+    static ArrayList<LatLng> safeSpots;
 
     /**
      * Defines the starting state of the MapsActivity
@@ -248,34 +250,80 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(i<=10){
                 markerArray.add(mMap.addMarker(new MarkerOptions()
                         .position(parkingSpot)
-                        .title("Parking Spot " + i)// change title to something more descriptive
+                        .title("Parking Spot " + Integer.valueOf(i+1))// change title to something more descriptive
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))));
             }
             else if (i>10 && i <=20){
                 markerArray.add(mMap.addMarker(new MarkerOptions()
                         .position(parkingSpot)
-                        .title("Parking Spot " + i)// change title to something more descriptive
+                        .title("Parking Spot " + Integer.valueOf(i+1))// change title to something more descriptive
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))));
             }
 
             else if (i>20 && i <=30){
                 markerArray.add(mMap.addMarker(new MarkerOptions()
                         .position(parkingSpot)
-                        .title("Parking Spot " + i)// change title to something more descriptive
+                        .title("Parking Spot " + Integer.valueOf(i+1))// change title to something more descriptive
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
             }
         }
     }
 
+    //loading safest parking spots b/w source and destination
+    public void loadSafeParkingZones() throws IOException {
+        safeSpots = new ArrayList<LatLng>();
+        //declare hashTable
+        LinearProbingHashST<Location, Integer> finalHT;
+        FindSafeParkingSpots.setupUserLocation(41.769722, -87.699724);
+        FindSafeParkingSpots.loadTheftData(2.00, getApplicationContext());
+        FindSafeParkingSpots.setupUserTheftFrequency(2.00);
+        FindSafeParkingSpots.addParkingSpotsToHT(2.00, 2.00, getApplicationContext());
+
+        //assign it the final hashTable produced by the getGraphData function
+        finalHT = FindSafeParkingSpots.getGraphData(2.00, 41.789722, -87.599724,
+                2.00, 41.77225986, -87.603415828); //change these values by getting them from input
+
+        if(FindSafeParkingSpots.wasPathFound()) {
+            //means there is a direct path from the user to the parking spot
+
+            //System.out.println("List of parking spots on the way: ");
+            Toast toast = Toast.makeText(getApplicationContext(), "Parking spots on the way:" , Toast.LENGTH_SHORT);
+            toast.show();
+
+        } else {
+            //no direct path was found, the adjacent list will be shown instead
+//            System.out.println("No direct path was found, here are the nearby parking spots, close"
+//                    + " to the searched parking spot: ");
+
+            Toast toast = Toast.makeText(getApplicationContext(), "No direct path was found, here are the nearby parking spots, close"
+                    + " to the searched parking spot: " , Toast.LENGTH_SHORT);
+            toast.show();
+        }
+
+        //if there is a directPath the distance is relevant to the user, otherwise it is relevant
+        //to the parking spot being searched for
+//        for(Location key: finalHT.keys()) {
+//            System.out.println(key + " Theft Frequency: " + finalHT.get(key));
+//        }
+        for(Location key: finalHT.keys()) {
+            //System.out.println(key + " Theft Frequency: " + finalHT.get(key));
+            safeSpots.add(new LatLng(key.getLat(), key.getLon()));
+        }
+
+    }
+
     //shows the parking spots in route from destination to source
     //testing using parkings spots marker list for now
-    public void showPolyLines(View view){
+    public void showPolyLines(View view) throws IOException {
+        loadSafeParkingZones();
         PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
-        for (int z = 0; z < 30; z++) {
-            LatLng point =new LatLng(parkingZones[z].getLat(),parkingZones[z].getLon());
+        //int z = 0; z < 30; z++
+        for (int z = 0; z < safeSpots.size(); z++) {
+            LatLng point =new LatLng(safeSpots.get(z).latitude,safeSpots.get(z).longitude);
             options.add(point);
         }
         line = mMap.addPolyline(options);
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom());
     }
 
 

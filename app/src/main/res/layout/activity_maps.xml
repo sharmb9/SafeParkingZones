@@ -80,31 +80,54 @@
         android:textColor="@color/common_google_signin_btn_text_dark_focused"
         android:textSize="12sp" />
 
-    <Button
-        android:id="@+id/showSafeRoute"
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="5dp"
-        android:layout_marginTop="55dp"
-        android:layout_marginEnd="13dp"
-        android:layout_marginBottom="41dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="10dp"
         android:background="@color/colorPrimary"
-        android:onClick="showPolyLines"
-        android:padding="8dp"
-        android:text="Show Safest Spots"
-        android:textColor="@color/common_google_signin_btn_text_dark_default"
-        android:textSize="12sp" />
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:background="@color/common_google_signin_btn_text_dark_focused"
-        android:text="Marker Legend"
-        android:textColor="#ffffff "
-        android:layout_alignParentBottom="true"/>
+        <EditText
+            android:id="@+id/sourceEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:hint="Source"
+            android:textColor="#ffffff" />
+
+        <EditText
+            android:id="@+id/destEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:hint="Destination"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:id="@+id/showSafeRoute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:onClick="showPolyLines"
+            android:text="Show Safest Spots" />
+
+
+    </LinearLayout>
+
+    <!--<TextView-->
+        <!--android:id="@+id/textView2"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="40dp"-->
+        <!--android:background="@color/common_google_signin_btn_text_dark_focused"-->
+        <!--android:text="Marker Legend"-->
+        <!--android:textColor="#ffffff "-->
+        <!--android:layout_alignParentBottom="true"/>-->
 
 
 
