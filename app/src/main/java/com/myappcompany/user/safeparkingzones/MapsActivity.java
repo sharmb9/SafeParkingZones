@@ -44,6 +44,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.myappcompany.user.safeparkingzones.FindSafeParkingSpots.hashT;
+
+
 /**
  *The main map activity to show the map focused on the city of
  *chicago which fetches data from the dataset and provides services as requested by the user.
@@ -75,7 +78,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng parkLocation;
     Marker markerParking;
     Polyline line;
-    static ArrayList<LatLng> safeSpots;
+    //static ArrayList<LatLng> safeSpots;
 
     /**
      * Defines the starting state of the MapsActivity
@@ -269,61 +272,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    //loading safest parking spots b/w source and destination
-    public void loadSafeParkingZones() throws IOException {
-        safeSpots = new ArrayList<LatLng>();
-        //declare hashTable
-        LinearProbingHashST<Location, Integer> finalHT;
-        FindSafeParkingSpots.setupUserLocation(41.769722, -87.699724);
-        FindSafeParkingSpots.loadTheftData(2.00, getApplicationContext());
-        FindSafeParkingSpots.setupUserTheftFrequency(2.00);
-        FindSafeParkingSpots.addParkingSpotsToHT(2.00, 2.00, getApplicationContext());
 
-        //assign it the final hashTable produced by the getGraphData function
-        finalHT = FindSafeParkingSpots.getGraphData(2.00, 41.789722, -87.599724,
-                2.00, 41.77225986, -87.603415828); //change these values by getting them from input
-
-        if(FindSafeParkingSpots.wasPathFound()) {
-            //means there is a direct path from the user to the parking spot
-
-            //System.out.println("List of parking spots on the way: ");
-            Toast toast = Toast.makeText(getApplicationContext(), "Parking spots on the way:" , Toast.LENGTH_SHORT);
-            toast.show();
-
-        } else {
-            //no direct path was found, the adjacent list will be shown instead
-//            System.out.println("No direct path was found, here are the nearby parking spots, close"
-//                    + " to the searched parking spot: ");
-
-            Toast toast = Toast.makeText(getApplicationContext(), "No direct path was found, here are the nearby parking spots, close"
-                    + " to the searched parking spot: " , Toast.LENGTH_SHORT);
-            toast.show();
-        }
-
-        //if there is a directPath the distance is relevant to the user, otherwise it is relevant
-        //to the parking spot being searched for
-//        for(Location key: finalHT.keys()) {
-//            System.out.println(key + " Theft Frequency: " + finalHT.get(key));
-//        }
-        for(Location key: finalHT.keys()) {
-            //System.out.println(key + " Theft Frequency: " + finalHT.get(key));
-            safeSpots.add(new LatLng(key.getLat(), key.getLon()));
-        }
-
-    }
 
     //shows the parking spots in route from destination to source
     //testing using parkings spots marker list for now
     public void showPolyLines(View view) throws IOException {
-        loadSafeParkingZones();
+        FindSafeParkingSpots.loadSafeParkingZones(getApplicationContext());
         PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
-        //int z = 0; z < 30; z++
-        for (int z = 0; z < safeSpots.size(); z++) {
-            LatLng point =new LatLng(safeSpots.get(z).latitude,safeSpots.get(z).longitude);
-            options.add(point);
+//        //int z = 0; z < 30; z++
+////        for (int z = 0; z < FindSafeParkingSpots.safeSpots.size(); z++) {
+////            LatLng point =new LatLng(FindSafeParkingSpots.safeSpots.get(z).latitude,FindSafeParkingSpots.safeSpots.get(z).longitude);
+////            options.add(point);
+////        }
+//        for (int z = 0; z < FindSafeParkingSpots.safeSpots.size(); z++) {
+//            LatLng point =new LatLng(FindSafeParkingSpots.safeSpots.get(z).latitude,FindSafeParkingSpots.safeSpots.get(z).longitude);
+//            //Log.i("Spots found:", String.valueOf(safeSpots.get(z).latitude) + safeSpots.get(z).longitude);
+//            Log.i("Spots found:", String.valueOf(point));
+//        }
+//        //line = mMap.addPolyline(options);
+        LatLng point =new LatLng(FindSafeParkingSpots.safeSpots.get(1).latitude,FindSafeParkingSpots.safeSpots.get(1).longitude);
+
+        for(int i=0; i<FindSafeParkingSpots.safeSpots.size(); i++){
+            LatLng parkingSpot = new LatLng(FindSafeParkingSpots.safeSpots.get(i).latitude,FindSafeParkingSpots.safeSpots.get(i).longitude);
+            mMap.addMarker(new MarkerOptions()
+                    .position(parkingSpot)
+                    .title("Parking Spot " + Integer.valueOf(i+1))// change title to something more descriptive
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            options.add(parkingSpot);
         }
         line = mMap.addPolyline(options);
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom());
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point,14));
+//        for (int z = 0; z < safestNearestParkingZones.length; z++) {
+//            LatLng point =new LatLng(safestNearestParkingZones[z].getLat(),safestNearestParkingZones[z].getLon());
+//            options.add(point);
+//        }
+        line = mMap.addPolyline(options);
     }
 
 
