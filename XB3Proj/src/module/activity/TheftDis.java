@@ -1,3 +1,6 @@
+/** 
+ * @author Shivam Taneja, Lab 02, Group 10
+ **/
 package module.activity;
 
 
@@ -10,12 +13,18 @@ public class TheftDis {
 	
 	private TheftDis() { }
 
-	//for testing
+	/**
+	 * Defines list of locations
+	 */	
 
-	public static List<Location> TheftZones = new ArrayList<Location>();
-
-
-	private static double distance(double userLat, double userLon, double zoneLat, double zoneLon) {
+	/**
+	 * Distribute the list of location to 10 parts (equal parts)
+	 * The 10 parts are defined by the "threshhold"
+	 * @param input list of location
+	 * @param Threshhold  distance i.e. location with with more distance than that wont be considered
+	 * @author Seda Mete
+	 */
+	 static double distance(double userLat, double userLon, double zoneLat, double zoneLon) {
 		double radius = 6371; //km
 		double latDist = Math.toRadians(zoneLat - userLat);
 		double lonDist = Math.toRadians(zoneLon - userLon);
@@ -28,9 +37,13 @@ public class TheftDis {
 		return dist;
 	}
 	
-	
-	public static List<Location> result(String data, double threshholdDis) {
-		
+	/**
+	 * puts the input coordinates into the TheftZone (list of location) 
+	 * @param Threshhold  distance i.e. location with more distance than that threshold wont be considered
+	 */
+	 static List<Location> result(String data, double threshhold) {
+		  List<Location> TheftZones = new ArrayList<Location>();
+
 		double userLat = 41.867150;
 		double userLon = -87.609889;
 		
@@ -45,7 +58,7 @@ public class TheftDis {
 				double lat = Double.parseDouble(line.split(", ")[0]);
 				double lon = Double.parseDouble(line.split(", ")[1]);
 				double dist = distance(userLat, userLon, lat, lon);
-				if(dist <= threshholdDis) {
+				if(dist <= threshhold) {
 					TheftZones.add(new Location(lat, lon, dist));
 				}
 				
@@ -53,7 +66,7 @@ public class TheftDis {
 			readFile.close();
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			System.out.println(e);
 		}
 		
 		Collections.sort(TheftZones);
@@ -62,13 +75,16 @@ public class TheftDis {
 
 
 	}
-	public static void main(String[] args) {
 	
-	String str = "(((A|B)*|CD*|EFG)*)*";
-	String[] temp = str.split("");
-	for(int i =0; i < temp.length;i++) {
-		System.out.println(i +" -> " +temp[i]);
-	}
-		}
 	
-	}
+	
+//	public static void main(String[] args) {
+//	result("data/dataTestDisKnownAll.csv",10);
+//	
+//	for(int i =0 ; i < TheftZones.size();i++) {
+//		System.out.println(TheftZones.get(i));
+//	}
+//	System.out.println(TheftZones.size());
+//
+//	}
+}
