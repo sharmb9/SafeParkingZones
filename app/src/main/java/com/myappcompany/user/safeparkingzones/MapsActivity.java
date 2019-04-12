@@ -2,24 +2,19 @@ package com.myappcompany.user.safeparkingzones;
 /**
  * @author Bilaval Sharma
  */
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -32,19 +27,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.myappcompany.user.safeparkingzones.R;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.myappcompany.user.safeparkingzones.FindSafeParkingSpots.hashT;
+import static com.myappcompany.user.safeparkingzones.ParkingSpotStats.finalHT;
+import static com.myappcompany.user.safeparkingzones.ParkingSpotStats.hashST;
 
 
 /**
@@ -68,7 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Marker markerSpot;
     ArrayList<Marker> markerArray;
     static CSVReader readFile;
-    private static List<String> myList = new ArrayList<String>();
+    private static List<String> myList;
     EditText locationCheck;
     String checkLocation="";
     static List<String> res;
@@ -78,6 +68,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng parkLocation;
     Marker markerParking;
     Polyline line;
+    static Graph G;
     //static ArrayList<LatLng> safeSpots;
 
     /**
@@ -96,6 +87,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public List<String> read(String fileName) {
+        myList = new ArrayList<String>();
         try {
             //File f = new File("data/parking.csv");
             readFile = new CSVReader((new InputStreamReader(getAssets().open(fileName))));
@@ -224,50 +216,196 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void showMarkers(String fileName, double userLat, double userLon){
         parkingZones=Sort.readData(fileName, getApplicationContext());
         //sorts parkingZones by distance from the user
-        Sort.nearestParkingZones(userLat, userLon,parkingZones);
+        Sort.nearestParkingZones(userLat,userLon,parkingZones);
         //sorts sorted (by distance) parking spots by safety
         safestNearestParkingZones= Sort.nearestSafestParkingZones(parkingZones, getApplicationContext());
+
+
         //Add different markers
         addMarkers(safestNearestParkingZones);
+    }
+
+    //remove this later or remove the class
+    //used for the nearest 15 spots, added 5 more to avoid re-hashing just in case
+    static LinearProbingHashST<Integer, Location> hashST = new LinearProbingHashST<Integer, Location>(31);
+
+    //one space for the final parking spot searched
+    static LinearProbingHashST<Location, Integer> finalHT = new LinearProbingHashST<Location, Integer>(1);
+
+
+    public static void addEdges(Graph G, Location[] parkingZones) {
+
+        //add each parking spot to the symbol table
+        for(int i = 0; i < parkingZones.length; i++) {
+            hashST.put(i, parkingZones[i]);
+        }
+
+        //adds the edges
+        for(int i = 0; i < parkingZones.length; i++) {
+            for(int j = i; j < parkingZones.length; j++) {
+                if(parkingZones[i].getLat() == parkingZones[j].getLat() &&
+                        parkingZones[i].getLon() == parkingZones[j].getLon()) {
+                    continue;
+                } else {
+                    //those within 0.3 km are considered adjacent
+                    if(Sort.distance(parkingZones[i].getLat(), parkingZones[i].getLon(),
+                            parkingZones[j].getLat(), parkingZones[j].getLon()) <= 0.2) {
+                        //use indices since they are indexed the same way as the hash table
+                        G.addEdge(i, j);
+                    }
+                }
+            }
+        }
+    }
+
+    //returns a hashtable with the searched parking spots and the adjacent locations to it as the key,
+    //and the value is the ranking of safety compared to its adjacent ones
+    public static LinearProbingHashST<Location, Integer> getStats(double spotLat, double spotLon)
+    {
+
+        //set to 0 cause i need to initialize it first
+        Location searchSpot = new Location(0, 0, 0, 0);
+
+        //holds list of adjacents
+        List<Location> adjacentList = new ArrayList<Location>();
+
+        //setup the list
+        for(Integer item: hashST.keys()) {
+            if(hashST.get(item).getLat() == spotLat && hashST.get(item).getLon() == spotLon) {
+                searchSpot = hashST.get(item);
+                for(Integer adjacentSpots : G.adj(item)) {
+                    adjacentList.add(hashST.get(adjacentSpots));
+                }
+
+                break;
+            }
+        }
+
+        //create new location item with adjacent list
+        Location finalSpot = new Location(searchSpot.getLat(), searchSpot.getLon(), searchSpot.getDist(),
+                searchSpot.getFreq(), adjacentList);
+
+        //get the ranking of safety compared to its adjacent ones
+        Location[] sortedByFreq = new Location[adjacentList.size()+1];
+        for(int i = 0; i < sortedByFreq.length; i++) {
+            if(i == 0) {
+                sortedByFreq[i] = finalSpot;
+            } else {
+                sortedByFreq[i] = adjacentList.get(i - 1);
+            }
+        }
+
+        //sort them by frequency
+        Insertion.sortInsert(sortedByFreq);
+
+        int val = 0;
+
+        //find the ranking
+        for(int i = 0; i < sortedByFreq.length; i++) {
+            if(sortedByFreq[i] == finalSpot) {
+                val = i;
+            }
+        }
+
+        finalHT.put(finalSpot, val);
+
+        return finalHT;
     }
 
     /**
      * Shows the the user location and the 30 nearest and marked by safety
      * Green markers represent the safest parking zones, yellow markers represent the parking zones with intermediate safety whereas red
      * markers represent the highly unsafe ones.
-     * @param parkingZones The array containing sorted parking spots
+     * @param sortedZones The array containing sorted parking spots
      */
-    private void addMarkers(Location[] parkingZones ){
+    public void addMarkers(Location[] sortedZones ){
+
+        //initialise graph
+        G = new Graph(sortedZones.length);
+
+        //adds the edges to the graph so that those within 0.2 km are considered adjacent
+        addEdges(G, sortedZones);
+
+//        Log.i("Spots: ", String.valueOf(G));
+//
+//        getStats(hashST.get(15).getLat(), hashST.get(15).getLon());
+//
+//        Log.i("Spots: ", String.valueOf(hashST.get(15).getLat()));
+
+
         markerArray= new ArrayList<Marker>();
 
 
-        //remove previous parking spot markers
-        for (Marker markerSpot : markerArray){
-            if (markerSpot!=null){
-                markerSpot.remove();
-            }
-        }
-        for(int i=0; i<safestNearestParkingZones.length; i++)
+        //put this under loop
+        //ParkingSpotStats.getStats(hashST.get(15).getLat(), hashST.get(15).getLon());
+
+        for(int i=0; i<sortedZones.length; i++)
         {
-            LatLng parkingSpot = new LatLng(safestNearestParkingZones[i].getLat(),safestNearestParkingZones[i].getLon());
+            LatLng parkingSpot = new LatLng(sortedZones[i].getLat(),sortedZones[i].getLon());
             if(i<=10){
-                markerArray.add(mMap.addMarker(new MarkerOptions()
-                        .position(parkingSpot)
-                        .title("Parking Spot " + Integer.valueOf(i+1))// change title to something more descriptive
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))));
+                getStats(hashST.get(i).getLat(), hashST.get(i).getLon());
+                for(Location key: finalHT.keys()){
+                    Location adjSpot = null;
+                    Double Lat= key.getLat();
+                    Double Lon= key.getLon();
+                    if(key.getAdj().size() == 0) {
+                        adjSpot = null;
+                    } else {
+                        for(int j = 0; j < key.getAdj().size(); j++) {
+                             adjSpot=key.getAdj().get(j);
+                        }
+                    }
+                    Integer safetyRank = finalHT.get(key);
+                    markerArray.add(mMap.addMarker(new MarkerOptions()
+                            .position(parkingSpot)
+                            .title("Coordinates: " + String.valueOf(Lat) + "," + String.valueOf((Lon)) + "\n" +"Safety Rank: " + String.valueOf(safetyRank))// change title to something more descriptive
+                            .snippet("Adjacent spots: " + adjSpot)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))));
+                }
+
             }
             else if (i>10 && i <=20){
-                markerArray.add(mMap.addMarker(new MarkerOptions()
-                        .position(parkingSpot)
-                        .title("Parking Spot " + Integer.valueOf(i+1))// change title to something more descriptive
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))));
+                getStats(hashST.get(i).getLat(), hashST.get(i).getLon());
+                for(Location key: finalHT.keys()){
+                    Location adjSpot = null;
+                    Double Lat= key.getLat();
+                    Double Lon= key.getLon();
+                    if(key.getAdj().size() == 0) {
+                        adjSpot = null;
+                    } else {
+                        for(int j = 0; j < key.getAdj().size(); j++) {
+                            adjSpot=key.getAdj().get(j);
+                        }
+                    }
+                    Integer safetyRank = finalHT.get(key);
+                    markerArray.add(mMap.addMarker(new MarkerOptions()
+                            .position(parkingSpot)
+                            .title("Coordinates: " + String.valueOf(Lat) + "," + String.valueOf((Lon)) + "\n" +"Safety Rank: " + String.valueOf(safetyRank))// change title to something more descriptive
+                            .snippet("Adjacent spots: " + adjSpot)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))));
+                }
             }
 
             else if (i>20 && i <=30){
-                markerArray.add(mMap.addMarker(new MarkerOptions()
-                        .position(parkingSpot)
-                        .title("Parking Spot " + Integer.valueOf(i+1))// change title to something more descriptive
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
+                getStats(hashST.get(i).getLat(), hashST.get(i).getLon());
+                for(Location key: finalHT.keys()){
+                    Location adjSpot = null;
+                    Double Lat= key.getLat();
+                    Double Lon= key.getLon();
+                    if(key.getAdj().size() == 0) {
+                        adjSpot = null;
+                    } else {
+                        for(int j = 0; j < key.getAdj().size(); j++) {
+                            adjSpot=key.getAdj().get(j);
+                        }
+                    }
+                    Integer safetyRank = finalHT.get(key);
+                    markerArray.add(mMap.addMarker(new MarkerOptions()
+                            .position(parkingSpot)
+                            .title("Coordinates: " + String.valueOf(Lat) + "," + String.valueOf((Lon)))// change title to something more descriptive
+                            .snippet("Safety rank: " + String.valueOf(safetyRank))
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
+                }
             }
         }
     }
@@ -276,37 +414,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //shows the parking spots in route from destination to source
     //testing using parkings spots marker list for now
-    public void showPolyLines(View view) throws IOException {
-        FindSafeParkingSpots.loadSafeParkingZones(getApplicationContext());
-        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
-//        //int z = 0; z < 30; z++
-////        for (int z = 0; z < FindSafeParkingSpots.safeSpots.size(); z++) {
-////            LatLng point =new LatLng(FindSafeParkingSpots.safeSpots.get(z).latitude,FindSafeParkingSpots.safeSpots.get(z).longitude);
-////            options.add(point);
-////        }
-//        for (int z = 0; z < FindSafeParkingSpots.safeSpots.size(); z++) {
-//            LatLng point =new LatLng(FindSafeParkingSpots.safeSpots.get(z).latitude,FindSafeParkingSpots.safeSpots.get(z).longitude);
-//            //Log.i("Spots found:", String.valueOf(safeSpots.get(z).latitude) + safeSpots.get(z).longitude);
-//            Log.i("Spots found:", String.valueOf(point));
-//        }
-//        //line = mMap.addPolyline(options);
-        LatLng point =new LatLng(FindSafeParkingSpots.safeSpots.get(1).latitude,FindSafeParkingSpots.safeSpots.get(1).longitude);
+    public void checkStats(View view) throws IOException {
 
-        for(int i=0; i<FindSafeParkingSpots.safeSpots.size(); i++){
-            LatLng parkingSpot = new LatLng(FindSafeParkingSpots.safeSpots.get(i).latitude,FindSafeParkingSpots.safeSpots.get(i).longitude);
-            mMap.addMarker(new MarkerOptions()
-                    .position(parkingSpot)
-                    .title("Parking Spot " + Integer.valueOf(i+1))// change title to something more descriptive
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            options.add(parkingSpot);
-        }
-        line = mMap.addPolyline(options);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point,14));
-//        for (int z = 0; z < safestNearestParkingZones.length; z++) {
-//            LatLng point =new LatLng(safestNearestParkingZones[z].getLat(),safestNearestParkingZones[z].getLon());
-//            options.add(point);
-//        }
-        line = mMap.addPolyline(options);
     }
 
 

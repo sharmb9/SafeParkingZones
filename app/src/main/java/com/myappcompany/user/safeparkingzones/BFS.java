@@ -1,8 +1,5 @@
 package com.myappcompany.user.safeparkingzones;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 public class BFS {
     private static final int INFINITY = Integer.MAX_VALUE;
     private boolean[] marked;  // marked[v] = is there an s-v path
@@ -16,7 +13,7 @@ public class BFS {
      * @param s the source vertex
      * @throws IllegalArgumentException unless {@code 0 <= s < V}
      */
-    public BFS(Digraph G, int s) {
+    public BFS(Graph G, int s) {
         marked = new boolean[G.V()];
         distTo = new int[G.V()];
         edgeTo = new int[G.V()];
@@ -24,7 +21,7 @@ public class BFS {
     }
 
     // breadth-first search from a single source
-    private void bfs(Digraph G, int s) {
+    private void bfs(Graph G, int s) {
         Queue<Integer> q = new Queue<Integer>();
         for (int v = 0; v < G.V(); v++)
             distTo[v] = INFINITY;

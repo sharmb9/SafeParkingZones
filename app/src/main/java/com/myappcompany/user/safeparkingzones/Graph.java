@@ -1,6 +1,6 @@
 package com.myappcompany.user.safeparkingzones;
 
-public class Digraph {
+public class Graph {
     private static final String NEWLINE = System.getProperty("line.separator");
 
     private final int V;           // number of vertices in this digraph
@@ -13,7 +13,7 @@ public class Digraph {
      * @param  V the number of vertices
      * @throws IllegalArgumentException if {@code V < 0}
      */
-    public Digraph(int V) {
+    public Graph(int V) {
         this.V = V;
         this.E = 0;
         adj = (Bag<Integer>[]) new Bag[V];
@@ -89,4 +89,3 @@ public class Digraph {
 
     }
 }
-

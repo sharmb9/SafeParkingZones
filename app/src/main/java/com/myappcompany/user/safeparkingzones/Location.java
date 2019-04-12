@@ -1,5 +1,7 @@
 package com.myappcompany.user.safeparkingzones;
 
+import java.util.List;
+
 /**
  * ADT for parking zone location
  *
@@ -11,6 +13,7 @@ public class Location implements Comparable<Location>{
     private final double lon; //parking zone longitude
     private double dist; // distance from user
     private int freq; // frequency of crime
+    private List<Location> adjacent; //adjacent parking spots
 
     /**
      * ADT for parking zone
@@ -33,11 +36,15 @@ public class Location implements Comparable<Location>{
      * @param lat - parking zone latitude
      * @param lon - parking zone longitude
      * @param dist - parking zone distance from user
+     * @param freq - frequency of crime for parking zone
+     * @param adjacent - array of adjacent parking spots
      */
-    public Location(double lat, double lon, double dist) {
+    public Location(double lat, double lon, double dist, int freq, List<Location> adjacent) {
         this.lat = lat;
         this.lon = lon;
         this.dist = dist;
+        this.freq = freq;
+        this.adjacent = adjacent;
     }
 
     /**
@@ -69,6 +76,10 @@ public class Location implements Comparable<Location>{
      * @param theftFreq zone theft frequency
      */
     public void setFreq(int theftFreq) {this.freq = theftFreq;}
+
+    public List<Location> getAdj() { return adjacent;}
+
+    public void setAdj(List<Location> adj) { this.adjacent = adj;}
 
     /**
      * Set parking zone distance from user
