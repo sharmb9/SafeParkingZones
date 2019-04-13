@@ -67,9 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double parkLon;
     LatLng parkLocation;
     Marker markerParking;
-    static Graph G;
-    //static ArrayList<LatLng> safeSpots;
-
+    
     /**
      * Defines the starting state of the MapsActivity
      * @param savedInstanceState Previous saved instance of the app
@@ -175,34 +173,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //hide the keyboard after user enters the location
         InputMethodManager mgr= (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         mgr.hideSoftInputFromWindow(locationSearch.getWindowToken(),0);
-
-
-        if (location != null || !location.equals("")) {
+        if(location.isEmpty() || location.length() == 0 || location.equals("") || location == null){
+            Toast toast =Toast.makeText(getApplicationContext(),"Invalid Location", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+        else {
             geocoder = new Geocoder(this);
             try {
                 userAddressList = geocoder.getFromLocationName(location, 1);
             } catch (IOException e) {
+                Toast toast =Toast.makeText(getApplicationContext(),"Invalid Location", Toast.LENGTH_SHORT);
+                toast.show();
                 e.printStackTrace();
             }
-            Address searchedAddress = userAddressList.get(0);
-            userLat= searchedAddress.getLatitude();
-            userLon= searchedAddress.getLongitude();
-            userLocation= new LatLng(userLat, userLon);
-            //adds marker to searched location
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(userLocation));
-
-            //remove previous user location marker
-            if(markerUser != null){
-                markerUser.remove();
+            if(userAddressList.isEmpty() || userAddressList.size() == 0 || userAddressList.equals("") || userAddressList == null){
+                Toast toast =Toast.makeText(getApplicationContext(),"Invalid Location", Toast.LENGTH_SHORT);
+                toast.show();
             }
-            markerUser= mMap.addMarker(new MarkerOptions().position(userLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,15));
+            else{
+                Address searchedAddress = userAddressList.get(0);
+                userLat= searchedAddress.getLatitude();
+                userLon= searchedAddress.getLongitude();
+                userLocation= new LatLng(userLat, userLon);
+                //adds marker to searched location
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(userLocation));
 
-            //loads parkings spots (enter an if-else condition here)
-            showMarkers("final_parking_coord.csv",userLat, userLon); //change to final_parking_zones.csv
-        }else{
-            //not working
-            Toast.makeText(getApplicationContext(),"Invalid Location", Toast.LENGTH_SHORT).show();;
+                //remove previous user location marker
+                if(markerUser != null){
+                    markerUser.remove();
+                }
+                markerUser= mMap.addMarker(new MarkerOptions().position(userLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,15));
+
+                //loads parkings spots (enter an if-else condition here)
+                showMarkers("final_parking_coord.csv",userLat, userLon);
+            }
         }
     }
 
@@ -234,10 +239,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ParkingSpotStats.markerInfo(sortedZones);
 
         markerArray= new ArrayList<Marker>();
-
-
-        //put this under loop
-        //ParkingSpotStats.getStats(hashST.get(15).getLat(), hashST.get(15).getLon());
 
         for(int i=0; i<sortedZones.length; i++)
         {
@@ -309,15 +310,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
-
-
-
-    //shows the parking spots in route from destination to source
-    //testing using parkings spots marker list for now
-    public void checkStats(View view) throws IOException {
-
-    }
-
 
     /**
      * Manuplates the map once ready

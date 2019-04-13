@@ -1,11 +1,8 @@
 package com.myappcompany.user.safeparkingzones;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * @author Shivam Taneja
- */
+* @author Shivam Taneja, Lab 02, Group 10
+**/
 public class SearchAlg
 {
     public boolean findPattern(String t, String p)
