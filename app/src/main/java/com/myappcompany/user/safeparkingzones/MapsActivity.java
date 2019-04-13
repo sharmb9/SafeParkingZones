@@ -1,6 +1,6 @@
 package com.myappcompany.user.safeparkingzones;
 /**
- * @author Bilaval Sharma
+ * @author Bilaval Sharma & Orlando Ortega
  */
 import android.content.Context;
 import android.content.Intent;
@@ -67,7 +67,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double parkLon;
     LatLng parkLocation;
     Marker markerParking;
-    Polyline line;
     static Graph G;
     //static ArrayList<LatLng> safeSpots;
 
@@ -225,93 +224,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         addMarkers(safestNearestParkingZones);
     }
 
-    //remove this later or remove the class
-    //used for the nearest 15 spots, added 5 more to avoid re-hashing just in case
-    static LinearProbingHashST<Integer, Location> hashST = new LinearProbingHashST<Integer, Location>(31);
-
-    //one space for the final parking spot searched
-    static LinearProbingHashST<Location, Integer> finalHT = new LinearProbingHashST<Location, Integer>(1);
-
-
-    public static void addEdges(Graph G, Location[] parkingZones) {
-
-        //add each parking spot to the symbol table
-        for(int i = 0; i < parkingZones.length; i++) {
-            hashST.put(i, parkingZones[i]);
-        }
-
-        //adds the edges
-        for(int i = 0; i < parkingZones.length; i++) {
-            for(int j = i; j < parkingZones.length; j++) {
-                if(parkingZones[i].getLat() == parkingZones[j].getLat() &&
-                        parkingZones[i].getLon() == parkingZones[j].getLon()) {
-                    continue;
-                } else {
-                    //those within 0.3 km are considered adjacent
-                    if(Sort.distance(parkingZones[i].getLat(), parkingZones[i].getLon(),
-                            parkingZones[j].getLat(), parkingZones[j].getLon()) <= 0.2) {
-                        //use indices since they are indexed the same way as the hash table
-                        G.addEdge(i, j);
-                    }
-                }
-            }
-        }
-    }
-
-    //returns a hashtable with the searched parking spots and the adjacent locations to it as the key,
-    //and the value is the ranking of safety compared to its adjacent ones
-    public static LinearProbingHashST<Location, Integer> getStats(double spotLat, double spotLon)
-    {
-
-        //set to 0 cause i need to initialize it first
-        Location searchSpot = new Location(0, 0, 0, 0);
-
-        //holds list of adjacents
-        List<Location> adjacentList = new ArrayList<Location>();
-
-        //setup the list
-        for(Integer item: hashST.keys()) {
-            if(hashST.get(item).getLat() == spotLat && hashST.get(item).getLon() == spotLon) {
-                searchSpot = hashST.get(item);
-                for(Integer adjacentSpots : G.adj(item)) {
-                    adjacentList.add(hashST.get(adjacentSpots));
-                }
-
-                break;
-            }
-        }
-
-        //create new location item with adjacent list
-        Location finalSpot = new Location(searchSpot.getLat(), searchSpot.getLon(), searchSpot.getDist(),
-                searchSpot.getFreq(), adjacentList);
-
-        //get the ranking of safety compared to its adjacent ones
-        Location[] sortedByFreq = new Location[adjacentList.size()+1];
-        for(int i = 0; i < sortedByFreq.length; i++) {
-            if(i == 0) {
-                sortedByFreq[i] = finalSpot;
-            } else {
-                sortedByFreq[i] = adjacentList.get(i - 1);
-            }
-        }
-
-        //sort them by frequency
-        Insertion.sortInsert(sortedByFreq);
-
-        int val = 0;
-
-        //find the ranking
-        for(int i = 0; i < sortedByFreq.length; i++) {
-            if(sortedByFreq[i] == finalSpot) {
-                val = i;
-            }
-        }
-
-        finalHT.put(finalSpot, val);
-
-        return finalHT;
-    }
-
     /**
      * Shows the the user location and the 30 nearest and marked by safety
      * Green markers represent the safest parking zones, yellow markers represent the parking zones with intermediate safety whereas red
@@ -319,19 +231,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * @param sortedZones The array containing sorted parking spots
      */
     public void addMarkers(Location[] sortedZones ){
-
-        //initialise graph
-        G = new Graph(sortedZones.length);
-
-        //adds the edges to the graph so that those within 0.2 km are considered adjacent
-        addEdges(G, sortedZones);
-
-//        Log.i("Spots: ", String.valueOf(G));
-//
-//        getStats(hashST.get(15).getLat(), hashST.get(15).getLon());
-//
-//        Log.i("Spots: ", String.valueOf(hashST.get(15).getLat()));
-
+        ParkingSpotStats.markerInfo(sortedZones);
 
         markerArray= new ArrayList<Marker>();
 
@@ -343,7 +243,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         {
             LatLng parkingSpot = new LatLng(sortedZones[i].getLat(),sortedZones[i].getLon());
             if(i<=10){
-                getStats(hashST.get(i).getLat(), hashST.get(i).getLon());
+                ParkingSpotStats.getStats(hashST.get(i).getLat(), hashST.get(i).getLon());
                 for(Location key: finalHT.keys()){
                     Location adjSpot = null;
                     Double Lat= key.getLat();
@@ -365,7 +265,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
             else if (i>10 && i <=20){
-                getStats(hashST.get(i).getLat(), hashST.get(i).getLon());
+                ParkingSpotStats.getStats(hashST.get(i).getLat(), hashST.get(i).getLon());
                 for(Location key: finalHT.keys()){
                     Location adjSpot = null;
                     Double Lat= key.getLat();
@@ -387,7 +287,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
             else if (i>20 && i <=30){
-                getStats(hashST.get(i).getLat(), hashST.get(i).getLon());
+                ParkingSpotStats.getStats(hashST.get(i).getLat(), hashST.get(i).getLon());
                 for(Location key: finalHT.keys()){
                     Location adjSpot = null;
                     Double Lat= key.getLat();

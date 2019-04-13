@@ -95,47 +95,10 @@ public class ParkingSpotStats {
         return finalHT;
     }
 
+    public static void markerInfo(Location[] sortedSpots){
+        G = new Graph(sortedSpots.length);
+        addEdges(G,sortedSpots);
+    }
 
-//    public static void main(String[] args) {
-//
-//        //get data
-//        parkingSpots = Sort.readData("data/final_parking_coord.csv");
-//
-//        //sort by distance
-//        Sort.nearestParkingZones(41.789722, -87.599724, parkingSpots);
-//
-//        //soft by near and safe
-//        sortedByDSSpots = Sort.nearestSafestParkingZones(parkingSpots);
-//
-////		for(int i = 0; i < sortedByDSSpots.length; i++) {
-////			System.out.println(sortedByDSSpots[i]);
-////		}
-//
-//        //initialize graph
-//        G = new Graph(sortedByDSSpots.length);
-//
-//        //adds the edges to the graph so that those within 0.2 km are considered adjacent
-//        addEdges(G, sortedByDSSpots);
-//
-//        //get the statistics for any parking spot you chose thats returned by the sorting algo
-//        getStats(hashST.get(18).getLat(), hashST.get(18).getLon());
-//
-//        System.out.println(G);
-//
-//        for(Location key: finalHT.keys()) {
-//            System.out.println("Latitude: " + key.getLat());
-//            System.out.println("Longitude: " + key.getLon());
-//            System.out.println("Theft Frequency: " + key.getFreq());
-//            System.out.println("Adjacent Spots: ");
-//            if(key.getAdj().size() == 0) {
-//                System.out.println("No adjacent parking spots found");
-//            } else {
-//                for(int i = 0; i < key.getAdj().size(); i++) {
-//                    System.out.println(key.getAdj().get(i));
-//                }
-//            }
-//            System.out.println("It's safety rank compared to adjacent values: " + finalHT.get(key));
-//        }
-//    }
 
 }
