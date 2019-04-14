@@ -1,6 +1,6 @@
 package com.myappcompany.user.safeparkingzones;
 /**
- * @author Bilaval Sharma & Orlando Ortega
+ * @author Bilaval Sharma
  */
 import android.content.Context;
 import android.content.Intent;
@@ -123,16 +123,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         List<String> list = new ArrayList<String>();
         list = read("final_parking_zones.csv");
         res = new ArrayList<String>();
-        String pattern = checkLocation.toLowerCase();
+        char[] pattern = checkLocation.toLowerCase().toCharArray();
 
         for(int i =0 ; i <list.size();i++) {
             SearchAlg bm = new SearchAlg();
+            char[] loc = list.get(i).toCharArray();
 
-            if(bm.findPattern(list.get(i), pattern)) {
+            if(bm.search(loc, pattern)) {
                 res.add(list.get(i));
             }
         }
-        //if status is found, show markers
+
+        //if a parking spot is found, show markers
         if(res.size()>0){
             Toast toast = Toast.makeText(getApplicationContext(), "Parking spot found at: " + res.get(0), Toast.LENGTH_SHORT);
             toast.show();
@@ -202,7 +204,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(markerUser != null){
                     markerUser.remove();
                 }
-                markerUser= mMap.addMarker(new MarkerOptions().position(userLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                markerUser= mMap.addMarker(new MarkerOptions().position(userLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title(location));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,15));
 
                 //loads parkings spots (enter an if-else condition here)

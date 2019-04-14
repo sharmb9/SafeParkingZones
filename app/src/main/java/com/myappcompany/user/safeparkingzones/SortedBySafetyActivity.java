@@ -34,7 +34,7 @@ public class SortedBySafetyActivity extends AppCompatActivity {
         //Shows 30 nearest spots sorted by safety
         int count=0;
         for(Location spot : MapsActivity.safestNearestParkingZones){
-            if(count<=30){
+            if(count<=15){
                 Geocoder geocoder;
                 List<Address> addresses;
                 geocoder = new Geocoder(this, Locale.getDefault());
@@ -42,7 +42,6 @@ public class SortedBySafetyActivity extends AppCompatActivity {
                 try {
                     addresses = geocoder.getFromLocation(spot.getLat(), spot.getLon(), 1);
                     String address = addresses.get(0).getAddressLine(0);
-                    //String city = addresses.get(0).getLocality();
                     spotAddress = address;
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
             android:onClick="onMapCheck"
-            android:text="Check" />
+            android:text="Check Street" />
 
         <Button
             android:id="@+id/search_button"
@@ -79,17 +79,6 @@
         android:text="Sort By Safety"
         android:textColor="@color/common_google_signin_btn_text_dark_focused"
         android:textSize="12sp" />
-
-
-
-    <!--<TextView-->
-        <!--android:id="@+id/textView2"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="40dp"-->
-        <!--android:background="@color/common_google_signin_btn_text_dark_focused"-->
-        <!--android:text="Marker Legend"-->
-        <!--android:textColor="#ffffff "-->
-        <!--android:layout_alignParentBottom="true"/>-->
 
 
 

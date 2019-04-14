@@ -8,10 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import com.google.android.gms.maps.model.LatLng;
-
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -35,10 +31,10 @@ public class SortedByDistActivity extends AppCompatActivity {
         ListView sortedListView = findViewById(R.id.sortedDistListView);
         ArrayList<String> sortedSpots = new ArrayList<String>();
 
-        //Shows 30 nearest spots sorted by distance
+        //Shows 15 nearest spots sorted by distance
         int count=0;
-        for(Location spot : MapsActivity.nearestParkingList){
-            if(count<=30){
+        for(Location spot : MapsActivity.parkingZones){
+            if(count<=15){
                 Geocoder geocoder;
                 List<Address> addresses;
                 geocoder = new Geocoder(this, Locale.getDefault());
