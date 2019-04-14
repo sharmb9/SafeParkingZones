@@ -1,28 +1,27 @@
 package module.activity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-class TestTheft {
-	
-	@BeforeEach
-	void setUp() throws Exception {
-			
+public class TestTheft {
+
+	@Before
+	public void setUp() throws Exception {
 	}
-	
 
-	@AfterEach
-	void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 	}
 
 	@Test
-	void testDisKnownResultAll() {
+	public void  testDisKnownResultAll() {
 	List<Location> Theft = new ArrayList<Location>();
 
 	Theft=TheftDis.result("data/dataTestDisKnownAll.csv",10);
@@ -31,14 +30,14 @@ class TestTheft {
 	}
 	
 	@Test
-	void testDisKnownResultNone() {
+	public void  testDisKnownResultNone() {
 		List<Location> Theft2 = new ArrayList<Location>();
 		Theft2=TheftDis.result("data/dataTestResultNone.csv",10);
 		assertTrue(Theft2.size()==0);
 	}
 	
 	@Test
-	void testDisKnownResultNotAll() {
+	public void  testDisKnownResultNotAll() {
 		List<Location> Theft1 = new ArrayList<Location>();
 		Theft1=TheftDis.result("data/dataTestKnownNotAll.csv",10);
 
@@ -46,7 +45,7 @@ class TestTheft {
 	}
 	
 	@Test
-	void testFreqKnownResultAllDistribute() {
+	public void  testFreqKnownResultAllDistribute() {
 		List<List<Location>> theftList = new ArrayList<List<Location>>();
 		List<Location> theft = TheftDis.result("data/dataTestDisKnownAll.csv", 10);
 		theftList = TheftFreq.dist(theft,10);
@@ -65,7 +64,7 @@ class TestTheft {
 	}
 	
 	@Test
-	void testFreqAll() {
+	public void  testFreqAll() {
 		int theftFreq;
 		List<Location> theft = TheftDis.result("data/dataTestDisKnownAll.csv", 10);
 		
