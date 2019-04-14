@@ -3,6 +3,12 @@ package Implementation;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * Implementation of Queue ADT
+ * Implemented with the help of the Algorithms textbook and website
+ * 
+ * @author Orlando Ortega
+ */
 public class Queue<Item> implements Iterable<Item> {
     private Node<Item> first;    // beginning of queue
     private Node<Item> last;     // end of queue
@@ -26,7 +32,7 @@ public class Queue<Item> implements Iterable<Item> {
     /**
      * Returns true if this queue is empty.
      *
-     * @return {@code true} if this queue is empty; {@code false} otherwise
+     * @return if the first node in the queue is node return true, otherwise return false
      */
     public boolean isEmpty() {
         return first == null;
@@ -45,10 +51,8 @@ public class Queue<Item> implements Iterable<Item> {
      * Returns the item least recently added to this queue.
      *
      * @return the item least recently added to this queue
-     * @throws NoSuchElementException if this queue is empty
      */
     public Item peek() {
-        if (isEmpty()) throw new NoSuchElementException("Queue underflow");
         return first.item;
     }
 
@@ -71,10 +75,8 @@ public class Queue<Item> implements Iterable<Item> {
      * Removes and returns the item on this queue that was least recently added.
      *
      * @return the item on this queue that was least recently added
-     * @throws NoSuchElementException if this queue is empty
      */
     public Item dequeue() {
-        if (isEmpty()) throw new NoSuchElementException("Queue underflow");
         Item item = first.item;
         first = first.next;
         n--;

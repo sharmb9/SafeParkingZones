@@ -2,11 +2,19 @@ package Implementation;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Finds the given statistics for each parking spot currently displayed on the screen.
+ * It represents each of the parking spots as a vertex and those that are within 0.2 km are considered
+ * adjacent. The graph is meant to show the relationships between the vertices and their information as
+ * well, creating a web of inter-connected parkingSpots
+ * 
+ * @author Orlando Ortega
+ */
 public class ParkingSpotStats {
 	
 	static Location[] parkingSpots;
 	static Location[] sortedByDSSpots;
+	static Location[] rankedSpots;
 	static Graph G;
 	
 	//used for the nearest 15 spots, added 5 more to avoid re-hashing just in case
@@ -15,7 +23,12 @@ public class ParkingSpotStats {
 	//one space for the final parking spot searched
 	static LinearProbingHashST<Location, Integer> finalHT = new LinearProbingHashST<Location, Integer>(1);
 	
-	
+	/**
+	 * Adds the edges to the graph
+	 * 
+	 * @param G The undirected graph being used
+	 * @param parkingZones The array with all the parkingZones being currently displayed to the user
+	 */
 	public static void addEdges(Graph G, Location[] parkingZones) {
 		
 		//add each parking spot to the symbol table
@@ -41,8 +54,15 @@ public class ParkingSpotStats {
 		}
 	}
 	
-	//returns a hashtable with the searched parking spots and the adjacent locations to it as the key,
-	//and the value is the ranking of safety compared to its adjacent ones
+	/**
+	 * Provides the statistics for the search parking spot with the given coordinates
+	 * 
+	 * @param spotLat The latitude of the parking spot
+	 * @param spotLon The longitude of the parking spot
+	 * @return a hashTable containing as it's key the information of the parking spot (the location
+	 * object) and the value being it's safety rankings when compared to other parking spots that
+	 * are being displayed to the user
+	 */
 	public static LinearProbingHashST<Location, Integer> getStats(double spotLat, double spotLon)
 	{
 		
@@ -68,31 +88,30 @@ public class ParkingSpotStats {
 		Location finalSpot = new Location(searchSpot.getLat(), searchSpot.getLon(), searchSpot.getDist(),
 				searchSpot.getFreq(), adjacentList);
 		
-		//get the ranking of safety compared to its adjacent ones
-		Location[] sortedByFreq = new Location[adjacentList.size()+1];
-		for(int i = 0; i < sortedByFreq.length; i++) {
-			if(i == 0) {
-				sortedByFreq[i] = finalSpot;
-			} else {
-				sortedByFreq[i] = adjacentList.get(i - 1);
-			}
-		}
-		
-		//sort them by frequency
-		Insertion.sortInsert(sortedByFreq);
-		
 		int val = 0;
 		
 		//find the ranking
-		for(int i = 0; i < sortedByFreq.length; i++) {
-			if(sortedByFreq[i] == finalSpot) {
-				val = i;
+		for(int i = 0; i < sortedByDSSpots.length; i++) {
+			if(sortedByDSSpots[i].getLat() == finalSpot.getLat() && 
+					sortedByDSSpots[i].getLon() == finalSpot.getLon()) {
+				val = i+1;
+				break;
 			}
 		}
 		
 		finalHT.put(finalSpot, val);
 		
 		return finalHT;
+	}
+	
+	/**
+	 * Initializes the graph and adds the corresponding edges
+	 * 
+	 * @param sortedSpots The list of sorted parking spots
+	 */
+	public static void markerInfo(Location[] sortedSpots) {
+		G = new Graph(sortedSpots.length);
+		addEdges(G, sortedSpots);
 	}
 	
 	
@@ -107,9 +126,9 @@ public class ParkingSpotStats {
 		//soft by near and safe
 		sortedByDSSpots = Sort.nearestSafestParkingZones(parkingSpots);
 		
-		for(int i = 0; i < sortedByDSSpots.length; i++) {
-			System.out.println(sortedByDSSpots[i]);
-		}
+//		for(int i = 0; i < sortedByDSSpots.length; i++) {
+//			System.out.println(sortedByDSSpots[i].getFreq());
+//		}
 		
 		//initialize graph
 		G = new Graph(sortedByDSSpots.length);
@@ -120,7 +139,7 @@ public class ParkingSpotStats {
 		//get the statistics for any parking spot you chose thats returned by the sorting algo
 		getStats(hashST.get(27).getLat(), hashST.get(27).getLon());
 		
-		System.out.println(G);
+//		System.out.println(G);
 		
 		for(Location key: finalHT.keys()) {
 			System.out.println("Latitude: " + key.getLat());
@@ -134,7 +153,7 @@ public class ParkingSpotStats {
 					System.out.println(key.getAdj().get(i));
 				}
 			}
-			System.out.println("It's safety rank compared to adjacent values: " + finalHT.get(key));
+			System.out.println("It's safety rank compared to the currently displayed spots: " + finalHT.get(key));
 		}
     }
 
