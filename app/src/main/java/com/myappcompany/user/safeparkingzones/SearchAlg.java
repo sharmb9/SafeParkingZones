@@ -1,6 +1,7 @@
 package com.myappcompany.user.safeparkingzones;
 
 /**
+ * Searches for a text in given pattern
 * @author Shivam Taneja, Lab 02, Group 10
 **/
 public class SearchAlg

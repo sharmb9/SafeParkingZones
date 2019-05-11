@@ -1,17 +1,22 @@
 package com.myappcompany.user.safeparkingzones;
 
+/**
+ * Implementation of Graph ADT
+ * Implemented with the help of the Algorithms textbook and website
+ *
+ * @author Orlando Ortega
+ */
 public class Graph {
     private static final String NEWLINE = System.getProperty("line.separator");
 
-    private final int V;           // number of vertices in this digraph
-    private int E;                 // number of edges in this digraph
-    private Bag<Integer>[] adj;    // adj[v] = adjacency list for vertex v
+    private final int V;
+    private int E;
+    private Bag<Integer>[] adj;
 
     /**
-     * Initializes an empty digraph with <em>V</em> vertices.
+     * Constructor for the graph
      *
-     * @param  V the number of vertices
-     * @throws IllegalArgumentException if {@code V < 0}
+     * @param  V number of vertices
      */
     public Graph(int V) {
         this.V = V;
@@ -23,69 +28,63 @@ public class Graph {
     }
 
     /**
-     * Returns the number of vertices in this digraph.
+     * Returns the number of vertices in this graph.
      *
-     * @return the number of vertices in this digraph
+     * @return the number of vertices in this graph
      */
     public int V() {
         return V;
     }
 
     /**
-     * Returns the number of edges in this digraph.
+     * Returns the number of edges in this graph.
      *
-     * @return the number of edges in this digraph
+     * @return the number of edges in this graph
      */
     public int E() {
         return E;
     }
 
     /**
-     * Adds the directed edge vâ†’w to this digraph.
+     * Adds the undirected edge between v and w to this graph.
      *
-     * @param  v the tail vertex
-     * @param  w the head vertex
-     * @throws IllegalArgumentException unless both {@code 0 <= v < V} and {@code 0 <= w < V}
+     * @param  v origin vertex
+     * @param  w destination vertex
      */
     public void addEdge(int v, int w) {
-        adj[v].add(w);
         E++;
+        adj[v].add(w);
+        adj[w].add(v);
     }
 
+
     /**
-     * Returns the vertices adjacent from vertex {@code v} in this digraph.
+     * Returns the vertices adjacent to the given vertex.
      *
      * @param  v the vertex
-     * @return the vertices adjacent from vertex {@code v} in this digraph, as an iterable
-     * @throws IllegalArgumentException unless {@code 0 <= v < V}
+     * @return the Iterable list of adjacent vertices
      */
     public Iterable<Integer> adj(int v) {
         return adj[v];
     }
 
+
     /**
-     * Returns a string representation of the graph.
+     * Returns a string representation of this graph.
      *
-     * @return the number of vertices <em>V</em>, followed by the number of edges <em>E</em>,
-     *         followed by the <em>V</em> adjacency lists
+     * @return the string representation of the graph
      */
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append(V + " vertices, " + E + " edges " + NEWLINE);
         for (int v = 0; v < V; v++) {
-            s.append(String.format("%d: ", v));
+            s.append(v + ": ");
             for (int w : adj[v]) {
-                s.append(String.format("%d ", w));
+                s.append(w + " ");
             }
             s.append(NEWLINE);
         }
         return s.toString();
     }
 
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
-
-
-    }
 }

@@ -1,5 +1,11 @@
 package com.myappcompany.user.safeparkingzones;
 
+/**
+ * Implementation of LinearProbingHashST ADT
+ * Implemented with the help of the Algorithms textbook and website
+ *
+ * @author Orlando Ortega
+ */
 public class LinearProbingHashST<Key, Value> {
 
     private int n;           // number of key-value pairs in the symbol table
@@ -7,7 +13,11 @@ public class LinearProbingHashST<Key, Value> {
     private Key[] keys;      // the keys
     private Value[] vals;    // the values
 
-    //constructor for Hash Table
+    /**
+     * Constructor for the hash Table
+     *
+     * @param  capacity the total number of spaces that should be pre-allocated
+     */
     public LinearProbingHashST(int capacity) {
         m = capacity;
         n = 0;
@@ -15,17 +25,30 @@ public class LinearProbingHashST<Key, Value> {
         vals = (Value[]) new Object[m];
     }
 
-    //returns number of key-value pairs
+    /**
+     * Size of the hashTable
+     *
+     * @return size of the hashTable
+     */
     public int size() {
         return n;
     }
 
-    //returns if the symbol table is empty
+    /**
+     * Checks if the hashTable is empty
+     *
+     * @return if size = 0 it is empty, else it is not empty
+     */
     public boolean isEmpty() {
         return size() == 0;
     }
 
-    //returns if a specified key is contained
+    /**
+     * Checks if the given key is within the hashTable
+     *
+     * @param key The key to be looked for within the hash table
+     * @return if the given key is in the hashTable
+     */
     public boolean contains(Key key) {
         return get(key) != null;
     }
@@ -48,9 +71,13 @@ public class LinearProbingHashST<Key, Value> {
         m    = temp.m;
     }
 
-    //puts a key with its associated value to the table
+    /**
+     * Places a given key and it's value into the hash table
+     *
+     * @param key The key to be placed in the table
+     * @param val The associated value of the given key
+     */
     public void put(Key key, Value val) {
-        if (key == null) throw new IllegalArgumentException("first argument to put() is null");
 
         if (val == null) {
             delete(key);
@@ -72,7 +99,12 @@ public class LinearProbingHashST<Key, Value> {
         n++;
     }
 
-    //gets the value associated with a key
+    /**
+     * Returns the value of the given key
+     *
+     * @param key the key used to find the value for
+     * @return the value of the given key
+     */
     public Value get(Key key) {
         if (key == null) throw new IllegalArgumentException("argument to get() is null");
         for (int i = hash(key); keys[i] != null; i = (i + 1) % m)
@@ -81,9 +113,12 @@ public class LinearProbingHashST<Key, Value> {
         return null;
     }
 
-    //deletes a key and its associated value from the table
+    /**
+     * Deletes a key from the hash table
+     *
+     * @param key the key to be deleted
+     */
     public void delete(Key key) {
-        if (key == null) throw new IllegalArgumentException("argument to delete() is null");
         if (!contains(key)) return;
 
         // find position i of key
@@ -114,7 +149,6 @@ public class LinearProbingHashST<Key, Value> {
         // halves size of array if it's 12.5% full or less
         if (n > 0 && n <= m/8) resize(m/2);
 
-        assert check();
     }
 
     //allows for iteration through the keys in the table
@@ -125,25 +159,5 @@ public class LinearProbingHashST<Key, Value> {
         return queue;
     }
 
-    // integrity check - don't check after each put() because
-    // integrity not maintained during a delete()
-    private boolean check() {
-
-        // check that hash table is at most 50% full
-        if (m < 2*n) {
-            System.err.println("Hash table size m = " + m + "; array size n = " + n);
-            return false;
-        }
-
-        // check that each key in table can be found by get()
-        for (int i = 0; i < m; i++) {
-            if (keys[i] == null) continue;
-            else if (get(keys[i]) != vals[i]) {
-                System.err.println("get[" + keys[i] + "] = " + get(keys[i]) + "; vals[i] = " + vals[i]);
-                return false;
-            }
-        }
-        return true;
-    }
 }
 

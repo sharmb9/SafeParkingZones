@@ -4,8 +4,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * @author Orlando
- * @param <Item>
+ * Implementation of Bag ADT
+ * Implemented with the help of the Algorithms textbook and website
+ *
+ * @author Orlando Ortega
  */
 public class Bag<Item> implements Iterable<Item> {
     private Node<Item> first;    // beginning of bag
@@ -17,23 +19,38 @@ public class Bag<Item> implements Iterable<Item> {
         private Node<Item> next;
     }
 
-    //constructor for bag
+    /**
+     * Bag constructor
+     *
+     */
     public Bag() {
         first = null;
         size = 0;
     }
 
-    //returns if the bag is empty
+    /**
+     * Checks if the bag is empty
+     *
+     * @return if the node is the first node is not null, then return false, otherwise return true
+     */
     public boolean isEmpty() {
         return first == null;
     }
 
-    //returns the size of the bag
+    /**
+     * Gives the size of the bag
+     *
+     * @return size of the bag
+     */
     public int size() {
         return size;
     }
 
-    //appends an item to the bag
+    /**
+     * Adds and item to the bag
+     *
+     * @param item is the item of the same type of the bag to be added
+     */
     public void add(Item item) {
         Node<Item> oldfirst = first;
         first = new Node<Item>();
@@ -43,7 +60,11 @@ public class Bag<Item> implements Iterable<Item> {
     }
 
 
-    //allows for iteration through the items of the bag
+    /**
+     * Allows for iteration through the elements of the bag
+     *
+     * @return Iterator for the bag
+     */
     public Iterator<Item> iterator()  {
         return new ListIterator<Item>(first);
     }

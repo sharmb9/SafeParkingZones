@@ -3,6 +3,15 @@ package com.myappcompany.user.safeparkingzones;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Finds the given statistics for each parking spot currently displayed on the screen.
+ * It represents each of the parking spots as a vertex and those that are within 0.2 km are considered
+ * adjacent. The graph is meant to show the relationships between the vertices and their information as
+ * well, creating a web of inter-connected parkingSpots
+ *
+ * @author Orlando Ortega
+ */
+
 public class ParkingSpotStats {
 
     static Location[] parkingSpots;
@@ -15,7 +24,12 @@ public class ParkingSpotStats {
     //one space for the final parking spot searched
     static LinearProbingHashST<Location, Integer> finalHT = new LinearProbingHashST<Location, Integer>(1);
 
-
+    /**
+     * Adds the edges to the graph
+     *
+     * @param G The undirected graph being used
+     * @param parkingZones The array with all the parkingZones being currently displayed to the user
+     */
     public static void addEdges(Graph G, Location[] parkingZones) {
 
         //add each parking spot to the symbol table
@@ -41,8 +55,15 @@ public class ParkingSpotStats {
         }
     }
 
-    //returns a hashtable with the searched parking spots and the adjacent locations to it as the key,
-    //and the value is the ranking of safety compared to its adjacent ones
+    /**
+     * Provides the statistics for the search parking spot with the given coordinates
+     *
+     * @param spotLat The latitude of the parking spot
+     * @param spotLon The longitude of the parking spot
+     * @return a hashTable containing as it's key the information of the parking spot (the location
+     * object) and the value being it's safety rankings when compared to other parking spots that
+     * are being displayed to the user
+     */
     public static LinearProbingHashST<Location, Integer> getStats(double spotLat, double spotLon)
     {
 
@@ -95,6 +116,11 @@ public class ParkingSpotStats {
         return finalHT;
     }
 
+    /**
+     * Initializes the graph and adds the corresponding edges
+     *
+     * @param sortedSpots The list of sorted parking spots
+     */
     public static void markerInfo(Location[] sortedSpots){
         G = new Graph(sortedSpots.length);
         addEdges(G,sortedSpots);

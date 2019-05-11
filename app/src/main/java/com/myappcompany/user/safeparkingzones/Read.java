@@ -1,5 +1,6 @@
 package com.myappcompany.user.safeparkingzones;
 /**
+ * Reads parking spot zones csv
  * @author Shivam Taneja, Lab 02, Group 10
  **/
 import android.content.Context;
